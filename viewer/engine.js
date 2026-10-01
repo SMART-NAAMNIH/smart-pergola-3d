@@ -78,10 +78,18 @@ let night=false,SPcfg=null;
 function setOpen(t){units.forEach(u=>setFabric(u,t))}
 function setNight(n){night=n;S.background=new THREE.Color(n?0x0d1622:0xbfdcf2);R.toneMappingExposure=n?.9:1.0;hemi.intensity=n?.1:.7;sun.intensity=n?.03:1.05;
  M.led.emissiveIntensity=n?3:0;lamps.forEach(l=>l.intensity=n?1.6:0);const b=document.getElementById('nt');if(b)b.classList.toggle('on',n)}
-function setView(name){const v=SPcfg.views[name];if(!v)return;cam.position.set(...v[0]);ctl.target.set(...v[1])}
+// מסך לאורך (טלפון): מרחיקים את המצלמה כדי שכל הפרגולה תיכנס לרוחב הצר
+function portraitK(){const a=innerWidth/innerHeight;return a>=1?1:Math.min(2.4,Math.pow(1/a,.75))}
+let curView=null;
+function setView(name){const v=SPcfg.views[name];if(!v)return;curView=name;const k=portraitK();
+ cam.position.set(v[1][0]+(v[0][0]-v[1][0])*k,v[1][1]+(v[0][1]-v[1][1])*k,v[1][2]+(v[0][2]-v[1][2])*k);ctl.target.set(...v[1]);
+ ctl.maxDistance=Math.max(20,20*k)}
 function setProj(i){const p=SPcfg.projects[i-1];if(!p)return;setView(p.view);
  SPcfg.projects.forEach((q,k)=>{const b=document.getElementById('p'+(k+1));if(b)b.classList.toggle('on',k+1===i)})}
-function size(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.fov=w/h<1?62:45;cam.updateProjectionMatrix()}  // מסך צר/טלפון: שדה ראייה רחב יותר
+let lastPortrait=null;
+function size(){const w=innerWidth,h=innerHeight;R.setSize(w,h);   // updateStyle — בלי זה בטלפון (DPR>1) הקנבס מוצג מוגדל וחתוך
+cam.aspect=w/h;cam.fov=w/h<1?55:45;cam.updateProjectionMatrix();
+ const pt=w<h;if(lastPortrait!==null&&pt!==lastPortrait&&curView)setView(curView);lastPortrait=pt}  // מסך צר/טלפון: שדה ראייה רחב יותר
 /* SP.start({views:{name:[[camX,camY,camZ],[tgtX,tgtY,tgtZ]]}, projects:[{label:'...', view:'name'}], labels:{open:'...',night:'...',reset:'...'},
    controls:{pan:false,minDist:4,maxDist:20,azimuth:.45,minPolar:.25,maxPolar:.47}})  — controls אופציונלי; azimuth:false מבטל את הגבלת הסיבוב */
 // ---------- שליטה נוחה (מאושר 01.10.2026): המרכז קבוע על הפרגולה, ללא pan, סיבוב רק מול הבניין, כפתור איפוס ולחיצה כפולה
@@ -93,7 +101,11 @@ function easyControls(cfg){const c=Object.assign({pan:false,minDist:4,maxDist:20
  if(pn&&!document.getElementById('rs')){const b=document.createElement('button');b.id='rs';
   b.textContent='↺ '+((cfg.labels&&cfg.labels.reset)||(document.documentElement.lang==='he'?'איפוס':'إعادة الضبط'));
   b.onclick=()=>setProj(1);pn.appendChild(b)}
- cv.addEventListener('dblclick',()=>setProj(1))}
+ cv.addEventListener('dblclick',()=>setProj(1));
+ if(matchMedia('(pointer:coarse)').matches){ctl.rotateSpeed=.8;ctl.zoomSpeed=.9;   // טלפון: רמז קצר לשימוש
+  const t=document.createElement('div');t.className='hint';
+  t.textContent=document.documentElement.lang==='he'?'אצבע אחת — סיבוב · שתי אצבעות — הגדלה':'إصبع واحد للتدوير · إصبعان للتكبير';
+  document.body.appendChild(t);setTimeout(()=>t.classList.add('off'),3500);cv.addEventListener('touchstart',()=>t.classList.add('off'),{once:true})}}
 // ---------- cfg.photo:{url,label}: כפתור שמציג הדמיה על תמונת האתר האמיתית (מסך מלא, לחיצה סוגרת)
 function photoButton(cfg){const pn=document.getElementById('panel'),b=document.createElement('button');
  b.textContent='📷 '+(cfg.photo.label||(document.documentElement.lang==='he'?'בתמונת האתר':'على صورة الموقع'));pn.appendChild(b);
