@@ -71,14 +71,26 @@ function setNight(n){night=n;S.background=new THREE.Color(n?0x0d1622:0xbfdcf2);h
 function setView(name){const v=SPcfg.views[name];if(!v)return;cam.position.set(...v[0]);ctl.target.set(...v[1])}
 function setProj(i){const p=SPcfg.projects[i-1];if(!p)return;setView(p.view);
  SPcfg.projects.forEach((q,k)=>{const b=document.getElementById('p'+(k+1));if(b)b.classList.toggle('on',k+1===i)})}
-function size(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
-/* SP.start({views:{name:[[camX,camY,camZ],[tgtX,tgtY,tgtZ]]}, projects:[{label:'...', view:'name'}], labels:{open:'...',night:'...'}}) */
+function size(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.fov=w/h<1?62:45;cam.updateProjectionMatrix()}  // מסך צר/טלפון: שדה ראייה רחב יותר
+/* SP.start({views:{name:[[camX,camY,camZ],[tgtX,tgtY,tgtZ]]}, projects:[{label:'...', view:'name'}], labels:{open:'...',night:'...',reset:'...'},
+   controls:{pan:false,minDist:4,maxDist:20,azimuth:.45,minPolar:.25,maxPolar:.47}})  — controls אופציונלי; azimuth:false מבטל את הגבלת הסיבוב */
+// ---------- שליטה נוחה (מאושר 01.10.2026): המרכז קבוע על הפרגולה, ללא pan, סיבוב רק מול הבניין, כפתור איפוס ולחיצה כפולה
+function easyControls(cfg){const c=Object.assign({pan:false,minDist:4,maxDist:20,azimuth:.45,minPolar:.25,maxPolar:.47},cfg.controls||{});
+ ctl.enablePan=!!c.pan;ctl.rotateSpeed=.55;ctl.zoomSpeed=.7;ctl.minDistance=c.minDist;ctl.maxDistance=c.maxDist;
+ if(c.azimuth){ctl.minAzimuthAngle=-Math.PI*c.azimuth;ctl.maxAzimuthAngle=Math.PI*c.azimuth}
+ ctl.minPolarAngle=c.minPolar;ctl.maxPolarAngle=Math.PI*c.maxPolar;
+ const pn=document.getElementById('panel');
+ if(pn&&!document.getElementById('rs')){const b=document.createElement('button');b.id='rs';
+  b.textContent='↺ '+((cfg.labels&&cfg.labels.reset)||(document.documentElement.lang==='he'?'איפוס':'إعادة الضبط'));
+  b.onclick=()=>setProj(1);pn.appendChild(b)}
+ cv.addEventListener('dblclick',()=>setProj(1))}
 const SP={start(cfg){SPcfg=cfg;const panel=document.getElementById('panel');
  if(panel){let h='';cfg.projects.forEach((p,k)=>{h+=`<button id="p${k+1}">${p.label}</button>`});
   h+=`<span>${(cfg.labels&&cfg.labels.open)||'فتح السقف'}</span><input id="op" type="range" min="0" max="100" value="0">`;
   h+=`<button id="nt">🌙 ${(cfg.labels&&cfg.labels.night)||'ليلي'}</button>`;panel.innerHTML=h;
   cfg.projects.forEach((p,k)=>{document.getElementById('p'+(k+1)).onclick=()=>setProj(k+1)});
   document.getElementById('op').oninput=e=>setOpen(e.target.value/100);document.getElementById('nt').onclick=()=>setNight(!night)}
+ if(!Q.get('shot'))easyControls(cfg);
  addEventListener('resize',size);size();
  setNight(Q.get('mode')==='night');setOpen(+(Q.get('open')||0));setProj(+(Q.get('p')||1));
  if(Q.get('view'))setView(Q.get('view'));
