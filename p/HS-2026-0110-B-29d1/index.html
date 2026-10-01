@@ -80,18 +80,6 @@ SP.start({
  projects:[{label:'מבט כללי',view:'all'},{label:'חזית',view:'front'},{label:'צד',view:'side'}],
  labels:{open:'פתיחת הגג',night:'לילה'}
 });
-// --- שליטה נוחה: סיבוב סביב הפרגולה בלבד, ללא הזזה (pan), בגבולות שלפני הבניין
-if(!Q.get('shot')){
- ctl.enablePan=false; ctl.rotateSpeed=.55; ctl.zoomSpeed=.7;
- ctl.minDistance=4; ctl.maxDistance=20;
- ctl.minAzimuthAngle=-Math.PI*.45; ctl.maxAzimuthAngle=Math.PI*.45;
- ctl.minPolarAngle=.25; ctl.maxPolarAngle=Math.PI*.47;
- const pn=document.getElementById('panel');
- if(pn){const b=document.createElement('button');b.textContent='↺ איפוס';b.onclick=()=>setProj(1);pn.appendChild(b)}
- cv.addEventListener('dblclick',()=>setProj(1));
-}
-function fit(){cam.fov=innerWidth/innerHeight<1?62:45;cam.updateProjectionMatrix()}
-addEventListener('resize',fit);fit();
 </script>
 </body>
 </html>
