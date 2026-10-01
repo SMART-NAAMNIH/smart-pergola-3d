@@ -19,8 +19,9 @@
 M.alu.color.set(0x0e0e10); M.alu.roughness=.75;                 // RAL 9005 מט
 const SLAT=new THREE.MeshStandardMaterial({color:0xd6c7a8,roughness:.7,metalness:.15}); // RAL 1013 מט
 const GL=new THREE.MeshStandardMaterial({color:0xbfd6df,roughness:.05,metalness:.1,transparent:true,opacity:.22,side:THREE.DoubleSide});
+GL.envMap=ENV;SLAT.envMap=ENV;
 const PLAST=new THREE.MeshStandardMaterial({color:0xe6d9c2,roughness:.95});
-const PAVE=new THREE.MeshStandardMaterial({color:0x34373b,roughness:.95});
+const PAVE=new THREE.MeshStandardMaterial({color:0x1d1f22,roughness:.95});
 const WOOD=new THREE.MeshStandardMaterial({color:0xc89a62,roughness:.7});
 const ORNG=new THREE.MeshStandardMaterial({color:0xc4521c,roughness:.6});
 const GRN=new THREE.MeshStandardMaterial({color:0x2fae8a,roughness:.8});
@@ -30,23 +31,21 @@ const g=new THREE.Group();S.add(g);
 // --- רחוב ובניין
 box(26,.04,16,PAVE,3,-.02,4,g);
 box(26,9,.4,PLAST,3,4.5,-.2,g);                                   // חזית הבניין
-box(6.6,3.4,.02,INT,2.95,1.7,.012,g);                             // פנים החנות (כהה)
-box(6.6,.06,.08,M.alu,2.95,3.45,.02,g);                           // משקוף עליון
-[0.15,1.55,4.35,5.75].forEach(x=>box(.06,3.4,.08,M.alu,x,1.7,.02,g));
-box(6.6,.06,.08,M.alu,2.95,2.48,.02,g);                           // קו גובה הדלת 248
-box(5.6,.9,.02,GL,2.95,2.95,.0,g); box(1.3,2.4,.02,GL,.85,1.2,0,g); box(1.3,2.4,.02,GL,5.05,1.2,0,g);
-box(.12,9,.12,M.alu,-.15,4.5,.08,g);                              // מרזב שחור קיים (גבול שמאל)
-box(.22,.32,.2,M.alu,6.12,2.9,.12,g);                             // רמקולים (גבול ימין)
-box(3.4,.5,.18,PLAST,2.95,4.45,.05,g); box(3.2,.08,.25,M.alu,2.95,4.15,.12,g); // שלט (ללא כיתוב)
-box(5.8,2.9,.06,GRN,10.2,1.75,-.02,g);                            // חלונות ראווה ירוקים (שכן)
-box(3,3,.06,new THREE.MeshStandardMaterial({color:0x7aa0b8,roughness:.8}),-3.4,1.6,-.02,g); // קיר גרפיטי שכן
-[[1.5,5.6],[4.4,5.6],[7.4,5.6],[-1.5,5.6]].forEach(([x,y])=>box(2.2,1.5,.05,M.glass,x,y,.01,g));
-box(26,.1,.9,M.alu,3,7.1,.45,g);                                   // מרפסת קומה א'
-// --- שולחנות וכיסאות
-function table(x,z,round){const t=round?new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.04,24),WOOD):new THREE.Mesh(new THREE.BoxGeometry(1.1,.04,.7),WOOD);
- t.position.set(x,.75,z);t.castShadow=true;g.add(t);box(.05,.73,.05,ORNG,x,.37,z,g);box(.6,.03,.06,ORNG,x,.02,z,g);box(.06,.03,.6,ORNG,x,.02,z,g);
- [[-.55,0],[.55,0]].forEach(([dx,dz])=>{box(.42,.03,.42,WOOD,x+dx,.46,z+dz,g);box(.42,.42,.03,WOOD,x+dx+(dx>0?.19:-.19)*0,.7,z+dz+(dx>0?.2:-.2)*0-.2,g);box(.03,.45,.03,M.alu,x+dx,.23,z+dz,g)})}
-table(1.4,1.4);table(4.4,1.4);table(1.4,2.7,1);table(4.4,2.7,1);table(8.6,1.6,1);table(-2.4,1.8);
+const OLD=new THREE.Group();g.add(OLD);   // חזית סכמטית — מוסתרת כשתמונת האתר נטענת
+box(6.6,3.4,.02,INT,2.95,1.7,.012,OLD);                             // פנים החנות (כהה)
+box(6.6,.06,.08,M.alu,2.95,3.45,.02,OLD);                           // משקוף עליון
+[0.15,1.55,4.35,5.75].forEach(x=>box(.06,3.4,.08,M.alu,x,1.7,.02,OLD));
+box(6.6,.06,.08,M.alu,2.95,2.48,.02,OLD);                           // קו גובה הדלת 248
+box(5.6,.9,.02,GL,2.95,2.95,.0,OLD); box(1.3,2.4,.02,GL,.85,1.2,0,OLD); box(1.3,2.4,.02,GL,5.05,1.2,0,OLD);
+box(.12,9,.12,M.alu,-.15,4.5,.08,OLD);                              // מרזב שחור קיים (גבול שמאל)
+box(.22,.32,.2,M.alu,6.12,2.9,.12,OLD);                             // רמקולים (גבול ימין)
+box(3.4,.5,.18,PLAST,2.95,4.45,.05,OLD); box(3.2,.08,.25,M.alu,2.95,4.15,.12,OLD); // שלט (ללא כיתוב)
+box(5.8,2.9,.06,GRN,10.2,1.75,-.02,OLD);                            // חלונות ראווה ירוקים (שכן)
+box(3,3,.06,new THREE.MeshStandardMaterial({color:0x7aa0b8,roughness:.8}),-3.4,1.6,-.02,OLD); // קיר גרפיטי שכן
+[[1.5,5.6],[4.4,5.6],[7.4,5.6],[-1.5,5.6]].forEach(([x,y])=>box(2.2,1.5,.05,M.glass,x,y,.01,OLD));
+box(26,.1,.9,M.alu,3,7.1,.45,OLD);                                   // מרפסת קומה א'
+// --- חזית אמיתית: תמונת האתר מיושרת (x -1.5..8.0 מ', y 0..5.2 מ'), פרצופים מטושטשים
+photoWall('facade.jpg',-1.5,0,9.5,5.2,.012,g,()=>{OLD.visible=false});
 // --- SKYTEKS Slide: מסגרת, עמודים, רפפות
 const sky={g:new THREE.Group(),sl:[]};g.add(sky.g);
 const TOPH=H, fb=.30;                                               // גובה עליון, עומק קורה
@@ -78,7 +77,8 @@ function setOpen(t){const rot=Math.min(1,t*2),col=Math.max(0,t*2-1);
 SP.start({
  views:{all:[[-2.2,4.4,10.8],[2.95,1.8,1.7]], front:[[2.95,2.3,11.8],[2.95,1.8,1.7]], side:[[10.6,4.0,8.4],[2.95,1.8,1.7]], inside:[[4.6,1.5,3.0],[2.4,3.4,0.6]]},
  projects:[{label:'מבט כללי',view:'all'},{label:'חזית',view:'front'},{label:'צד',view:'side'}],
- labels:{open:'פתיחת הגג',night:'לילה'}
+ labels:{open:'פתיחת הגג',night:'לילה'},
+ photo:{url:'montage.jpg',label:'בתמונת האתר'}
 });
 </script>
 </body>
