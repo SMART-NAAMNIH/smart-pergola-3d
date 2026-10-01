@@ -76,10 +76,22 @@ for(let i=0;i<2;i++)pane(inner/2,HF-.04,.14+inner/4+i*inner/2,HS+HF/2,zF,0,glz);
 function setOpen(t){const rot=Math.min(1,t*2),col=Math.max(0,t*2-1);
  sky.sl.forEach((s,i)=>{s.rotation.x=rot*THREE.MathUtils.degToRad(52);const z0=.16+i*.196,zc=.18+i*.045;s.position.z=z0+(zc-z0)*col})}
 SP.start({
- views:{all:[[-3.2,5.6,10.2],[2.9,1.9,1.6]], side:[[11.0,4.6,7.6],[3.0,2.0,1.6]], inside:[[4.6,1.5,3.0],[2.4,3.4,0.6]], front:[[2.95,1.9,11.5],[2.95,1.8,1.5]]},
+ views:{all:[[-2.2,4.4,10.8],[2.95,1.8,1.7]], front:[[2.95,2.3,11.8],[2.95,1.8,1.7]], side:[[10.6,4.0,8.4],[2.95,1.8,1.7]], inside:[[4.6,1.5,3.0],[2.4,3.4,0.6]]},
  projects:[{label:'מבט כללי',view:'all'},{label:'חזית',view:'front'},{label:'צד',view:'side'}],
  labels:{open:'פתיחת הגג',night:'לילה'}
 });
+// --- שליטה נוחה: סיבוב סביב הפרגולה בלבד, ללא הזזה (pan), בגבולות שלפני הבניין
+if(!Q.get('shot')){
+ ctl.enablePan=false; ctl.rotateSpeed=.55; ctl.zoomSpeed=.7;
+ ctl.minDistance=4; ctl.maxDistance=20;
+ ctl.minAzimuthAngle=-Math.PI*.45; ctl.maxAzimuthAngle=Math.PI*.45;
+ ctl.minPolarAngle=.25; ctl.maxPolarAngle=Math.PI*.47;
+ const pn=document.getElementById('panel');
+ if(pn){const b=document.createElement('button');b.textContent='↺ איפוס';b.onclick=()=>setProj(1);pn.appendChild(b)}
+ cv.addEventListener('dblclick',()=>setProj(1));
+}
+function fit(){cam.fov=innerWidth/innerHeight<1?62:45;cam.updateProjectionMatrix()}
+addEventListener('resize',fit);fit();
 </script>
 </body>
 </html>
