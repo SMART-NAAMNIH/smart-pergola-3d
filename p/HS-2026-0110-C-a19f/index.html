@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · הדמיה תלת־ממדית · HS-2026-0110-C</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>חיפה · SKYTEKS Slide 590×220 · זיגוג הזזה Sürme Plus · RAL 9005 / 1013</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== מודל הפרויקט — מידות במטרים. x: לאורך החזית (0 = מרזב שחור משמאל), z: בליטה מהקיר, y: גובה =====
+M.alu.color.set(0x0e0e10); M.alu.roughness=.75;                 // RAL 9005 מט
+const SLAT=new THREE.MeshStandardMaterial({color:0xd6c7a8,roughness:.7,metalness:.15}); // RAL 1013 מט
+const GL=new THREE.MeshStandardMaterial({color:0xbfd6df,roughness:.05,metalness:.1,transparent:true,opacity:.22,side:THREE.DoubleSide});
+GL.envMap=ENV;SLAT.envMap=ENV;
+const PLAST=new THREE.MeshStandardMaterial({color:0xe6d9c2,roughness:.95});
+const PAVE=new THREE.MeshStandardMaterial({color:0x1d1f22,roughness:.95});
+const WOOD=new THREE.MeshStandardMaterial({color:0xc89a62,roughness:.7});
+const ORNG=new THREE.MeshStandardMaterial({color:0xc4521c,roughness:.6});
+const GRN=new THREE.MeshStandardMaterial({color:0x2fae8a,roughness:.8});
+const INT=new THREE.MeshStandardMaterial({color:0x8a6d4c,roughness:.9,emissive:0x3a2a18,emissiveIntensity:.6});
+const W=5.90,D=2.20,H=3.48,HS=2.48,HF=0.70;   // רוחב, בליטה, גובה, זכוכית הזזה, זכוכית קבועה
+const g=new THREE.Group();S.add(g);
+// --- רחוב ובניין
+box(26,.04,16,PAVE,3,-.02,4,g);
+box(26,9,.4,PLAST,3,4.5,-.2,g);                                   // חזית הבניין
+const OLD=new THREE.Group();g.add(OLD);   // חזית סכמטית — מוסתרת כשתמונת האתר נטענת
+box(6.6,3.4,.02,INT,2.95,1.7,.012,OLD);                             // פנים החנות (כהה)
+box(6.6,.06,.08,M.alu,2.95,3.45,.02,OLD);                           // משקוף עליון
+[0.15,1.55,4.35,5.75].forEach(x=>box(.06,3.4,.08,M.alu,x,1.7,.02,OLD));
+box(6.6,.06,.08,M.alu,2.95,2.48,.02,OLD);                           // קו גובה הדלת 248
+box(5.6,.9,.02,GL,2.95,2.95,.0,OLD); box(1.3,2.4,.02,GL,.85,1.2,0,OLD); box(1.3,2.4,.02,GL,5.05,1.2,0,OLD);
+box(.12,9,.12,M.alu,-.15,4.5,.08,OLD);                              // מרזב שחור קיים (גבול שמאל)
+box(.22,.32,.2,M.alu,6.12,2.9,.12,OLD);                             // רמקולים (גבול ימין)
+box(3.4,.5,.18,PLAST,2.95,4.45,.05,OLD); box(3.2,.08,.25,M.alu,2.95,4.15,.12,OLD); // שלט (ללא כיתוב)
+box(5.8,2.9,.06,GRN,10.2,1.75,-.02,OLD);                            // חלונות ראווה ירוקים (שכן)
+box(3,3,.06,new THREE.MeshStandardMaterial({color:0x7aa0b8,roughness:.8}),-3.4,1.6,-.02,OLD); // קיר גרפיטי שכן
+[[1.5,5.6],[4.4,5.6],[7.4,5.6],[-1.5,5.6]].forEach(([x,y])=>box(2.2,1.5,.05,M.glass,x,y,.01,OLD));
+box(26,.1,.9,M.alu,3,7.1,.45,OLD);                                   // מרפסת קומה א'
+// --- חזית אמיתית: תמונת האתר מיושרת (x -1.5..8.0 מ', y 0..5.2 מ'), פרצופים מטושטשים
+photoWall('../HS-2026-0110-B-29d1/facade.jpg',-1.5,0,9.5,5.2,.012,g,()=>{OLD.visible=false});
+// --- SKYTEKS Slide: מסגרת, עמודים, רפפות
+const sky={g:new THREE.Group(),sl:[]};g.add(sky.g);
+const TOPH=H, fb=.30;                                               // גובה עליון, עומק קורה
+box(W,fb,.16,M.alu,W/2,TOPH-fb/2,.08,sky.g);                         // פרופיל קיר
+box(W+.12,fb,.16,M.alu,W/2,TOPH-fb/2,D,sky.g);                       // קורה קדמית + מרזב
+box(.14,fb,D,M.alu,.07,TOPH-fb/2,D/2,sky.g); box(.14,fb,D,M.alu,W-.07,TOPH-fb/2,D/2,sky.g);
+[.07,W-.07].forEach(x=>box(.16,TOPH-fb,.16,M.alu,x,(TOPH-fb)/2,D,sky.g));          // עמודים קדמיים
+box(.03,(TOPH-fb),.03,M.alu,W/2,(TOPH-fb)/2,D+.09,sky.g);
+const NS=Math.ceil((D-.2)/.206);                                    // 17 רפפות של 20.6 ס"מ
+for(let i=0;i<NS;i++){const s=box(W-.28,.035,.2,SLAT,W/2,TOPH-.06,.16+i*.196,sky.g);sky.sl.push(s)}
+const ledS=box(W-.4,.02,.03,M.led,W/2,TOPH-fb-.01,D-.12,sky.g);leds.push(ledS);
+[1.5,4.4].forEach(x=>{const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(x,TOPH-.5,D/2);sky.g.add(p);lamps.push(p)});
+// --- זיגוג: הזזה Sürme Plus (0–248) + קבוע (248–318), שלוש חזיתות
+function pane(w,h,x,y,z,rotY,gg){const p=new THREE.Group();p.position.set(x,y,z);p.rotation.y=rotY||0;gg.add(p);
+ box(w,h,.012,GL,0,0,0,p);box(w,.04,.03,M.alu,0,h/2-.02,0,p);box(w,.04,.03,M.alu,0,-h/2+.02,0,p);box(.035,h,.03,M.alu,-w/2+.017,0,0,p);box(.035,h,.03,M.alu,w/2-.017,0,0,p);return p}
+const glz=new THREE.Group();g.add(glz);
+const zF=D+.0, inner=W-.28, pw=inner/8;
+box(inner,.05,.12,M.alu,W/2,.025,zF,glz); box(inner,.06,.12,M.alu,W/2,HS,zF,glz);     // מסילות תחתונה ועליונה
+for(let i=0;i<8;i++){const left=i<4, k=left?i:7-i, off=(k%2)*.035;
+ pane(pw+.02,HS-.1,.14+pw*(i+.5),HS/2,zF-.04+off,0,glz)}
+for(let i=0;i<2;i++)pane(inner/2,HF-.04,.14+inner/4+i*inner/2,HS+HF/2,zF,0,glz);          // קבוע קדמי
+[.07,W-.07].forEach(x=>{const sideL=D-.2;
+ box(.12,.05,sideL,M.alu,x,.025,.08+sideL/2,glz);box(.12,.06,sideL,M.alu,x,HS,.08+sideL/2,glz);
+ for(let i=0;i<4;i++)pane(sideL/4+.02,HS-.1,x+((i%2)*.035-.017)*(x<1?1:-1),HS/2,.1+sideL/4*(i+.5),Math.PI/2,glz);
+ pane(sideL,HF-.04,x,HS+HF/2,.08+sideL/2,Math.PI/2,glz)});
+// --- פתיחת הגג: רפפות מסתובבות ואז נאספות לכיוון הקיר
+function setOpen(t){const rot=Math.min(1,t*2),col=Math.max(0,t*2-1);
+ sky.sl.forEach((s,i)=>{s.rotation.x=rot*THREE.MathUtils.degToRad(52);const z0=.16+i*.196,zc=.18+i*.045;s.position.z=z0+(zc-z0)*col})}
+SP.start({
+ views:{all:[[-2.2,4.4,10.2],[2.95,1.8,1.1]], front:[[2.95,2.3,11.2],[2.95,1.8,1.1]], side:[[10.6,4.0,7.8],[2.95,1.8,1.1]], inside:[[4.6,1.5,3.0],[2.4,3.4,0.6]]},
+ projects:[{label:'מבט כללי',view:'all'},{label:'חזית',view:'front'},{label:'צד',view:'side'}],
+ labels:{open:'פתיחת הגג',night:'לילה'},
+ photo:{url:'montage.jpg',label:'בתמונת האתר'}
+});
+</script>
+</body>
+</html>
