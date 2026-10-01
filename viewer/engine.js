@@ -4,14 +4,19 @@ if(Q.get('shot'))document.body.classList.add('shot');
 const cv=document.getElementById('c');
 const R=new THREE.WebGLRenderer({canvas:cv,antialias:true,preserveDrawingBuffer:true});
 R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
-R.outputEncoding=THREE.sRGBEncoding;
+R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.0;  // מראה מציאותי יותר (01.10.2026)
 const S=new THREE.Scene();
 const cam=new THREE.PerspectiveCamera(45,1,.1,200);
 const ctl=new THREE.OrbitControls(cam,cv);ctl.enableDamping=true;ctl.maxPolarAngle=Math.PI*.49;
-const hemi=new THREE.HemisphereLight(0xdfefff,0xb8a88a,.75);S.add(hemi);
-const sun=new THREE.DirectionalLight(0xfff4e0,1.0);sun.position.set(-8,14,12);sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-14,right:14,top:14,bottom:-14,far:60});S.add(sun);
+const hemi=new THREE.HemisphereLight(0xdfefff,0xb8a88a,.7);S.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff4e0,1.05);sun.position.set(-8,14,12);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=4;sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;Object.assign(sun.shadow.camera,{left:-14,right:14,top:14,bottom:-14,far:60});S.add(sun);
 
+// ---------- סביבה להשתקפויות (שמיים/קרקע) — זכוכית ואלומיניום משקפים את הסביבה
+const ENV=(function(){const es=new THREE.Scene(),geo=new THREE.SphereGeometry(50,32,16),p=geo.attributes.position,col=[];
+ for(let i=0;i<p.count;i++){const t=p.getY(i)/50,c=new THREE.Color();if(t>0)c.setRGB(.62+.2*(1-t),.75+.12*(1-t),.93);else c.setRGB(.36,.34,.31);col.push(c.r,c.g,c.b)}
+ geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));es.add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
+ const pm=new THREE.PMREMGenerator(R);return pm.fromScene(es,.04).texture})();
 // ---------- textures
 function stoneTex(rough){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');
  g.fillStyle='#e7dcc4';g.fillRect(0,0,512,512);
@@ -26,17 +31,22 @@ function tileTex(){const c=document.createElement('canvas');c.width=c.height=256
 const TS=stoneTex(true),TT=tileTex();
 function stoneMat(w,h){const t=TS.clone();t.needsUpdate=true;t.repeat.set(w/2.2,h/1.1);return new THREE.MeshStandardMaterial({map:t,roughness:.9})}
 const M={
- alu:new THREE.MeshStandardMaterial({color:0x151515,roughness:.62,metalness:.35}),
+ alu:new THREE.MeshStandardMaterial({color:0x111112,roughness:.6,metalness:.3,envMapIntensity:.4}),
  fab:new THREE.MeshStandardMaterial({color:0xe9e6df,roughness:.85,side:THREE.DoubleSide}),
  dark:new THREE.MeshStandardMaterial({color:0x22262a,roughness:.4,metalness:.3}),
- glass:new THREE.MeshStandardMaterial({color:0x33424d,roughness:.1,metalness:.6}),
+ glass:new THREE.MeshStandardMaterial({color:0x33424d,roughness:.08,metalness:.6,envMapIntensity:1.2}),
  led:new THREE.MeshStandardMaterial({color:0xfff2c8,emissive:0xffd88a,emissiveIntensity:0}),
  cap:new THREE.MeshStandardMaterial({color:0xefe6d2,roughness:.7})
 };
+[M.alu,M.dark,M.glass,M.led].forEach(m=>m.envMap=ENV);   // השתקפויות רק על מתכת וזכוכית
 function box(w,h,d,mat,x,y,z,g){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;(g||S).add(m);return m}
 function beam(a,b,w,h,mat,g){const L=a.distanceTo(b);const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,L),mat);
  m.position.copy(a).add(b).multiplyScalar(.5);m.lookAt(b);m.castShadow=m.receiveShadow=true;g.add(m);return m}
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+// ---------- photoWall: תמונת אתר מיושרת (חזית אמיתית) כמשטח בקיר. onload — למשל להסתיר את הקיר הסכמטי
+function photoWall(url,x0,y0,w,h,z,g,onload){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9}));
+ m.position.set(x0+w/2,y0+h/2,z||.01);m.receiveShadow=true;m.visible=false;(g||S).add(m);
+ new THREE.TextureLoader().load(url,t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=R.capabilities.getMaxAnisotropy();m.material.map=t;m.material.needsUpdate=true;m.visible=true;if(onload)onload(m)});return m}
 
 // ---------- RTS unit: x0..x0+W along wall (z=0) projecting to z=D. front height hf, back hb
 const units=[],leds=[],lamps=[];
@@ -66,7 +76,7 @@ function setFabric(u,t){
 // ---------- generic controls (projects/views come from the project page)
 let night=false,SPcfg=null;
 function setOpen(t){units.forEach(u=>setFabric(u,t))}
-function setNight(n){night=n;S.background=new THREE.Color(n?0x0d1622:0xbfdcf2);hemi.intensity=n?.1:.75;sun.intensity=n?.03:1.0;
+function setNight(n){night=n;S.background=new THREE.Color(n?0x0d1622:0xbfdcf2);R.toneMappingExposure=n?.9:1.0;hemi.intensity=n?.1:.7;sun.intensity=n?.03:1.05;
  M.led.emissiveIntensity=n?3:0;lamps.forEach(l=>l.intensity=n?1.6:0);const b=document.getElementById('nt');if(b)b.classList.toggle('on',n)}
 function setView(name){const v=SPcfg.views[name];if(!v)return;cam.position.set(...v[0]);ctl.target.set(...v[1])}
 function setProj(i){const p=SPcfg.projects[i-1];if(!p)return;setView(p.view);
@@ -84,6 +94,12 @@ function easyControls(cfg){const c=Object.assign({pan:false,minDist:4,maxDist:20
   b.textContent='↺ '+((cfg.labels&&cfg.labels.reset)||(document.documentElement.lang==='he'?'איפוס':'إعادة الضبط'));
   b.onclick=()=>setProj(1);pn.appendChild(b)}
  cv.addEventListener('dblclick',()=>setProj(1))}
+// ---------- cfg.photo:{url,label}: כפתור שמציג הדמיה על תמונת האתר האמיתית (מסך מלא, לחיצה סוגרת)
+function photoButton(cfg){const pn=document.getElementById('panel'),b=document.createElement('button');
+ b.textContent='📷 '+(cfg.photo.label||(document.documentElement.lang==='he'?'בתמונת האתר':'على صورة الموقع'));pn.appendChild(b);
+ const ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;z-index:50;background:#000;display:none;align-items:center;justify-content:center;cursor:zoom-out';
+ ov.innerHTML=`<img src="${cfg.photo.url}" style="max-width:100%;max-height:100%;object-fit:contain">`;document.body.appendChild(ov);
+ b.onclick=()=>{ov.style.display='flex'};ov.onclick=()=>{ov.style.display='none'}}
 const SP={start(cfg){SPcfg=cfg;const panel=document.getElementById('panel');
  if(panel){let h='';cfg.projects.forEach((p,k)=>{h+=`<button id="p${k+1}">${p.label}</button>`});
   h+=`<span>${(cfg.labels&&cfg.labels.open)||'فتح السقف'}</span><input id="op" type="range" min="0" max="100" value="0">`;
@@ -91,6 +107,7 @@ const SP={start(cfg){SPcfg=cfg;const panel=document.getElementById('panel');
   cfg.projects.forEach((p,k)=>{document.getElementById('p'+(k+1)).onclick=()=>setProj(k+1)});
   document.getElementById('op').oninput=e=>setOpen(e.target.value/100);document.getElementById('nt').onclick=()=>setNight(!night)}
  if(!Q.get('shot'))easyControls(cfg);
+ if(cfg.photo&&panel&&!Q.get('shot'))photoButton(cfg);
  addEventListener('resize',size);size();
  setNight(Q.get('mode')==='night');setOpen(+(Q.get('open')||0));setProj(+(Q.get('p')||1));
  if(Q.get('view'))setView(Q.get('view'));
