@@ -25,7 +25,7 @@ const WOOD=new THREE.MeshStandardMaterial({color:0xc89a62,roughness:.7});
 const ORNG=new THREE.MeshStandardMaterial({color:0xc4521c,roughness:.6});
 const GRN=new THREE.MeshStandardMaterial({color:0x2fae8a,roughness:.8});
 const INT=new THREE.MeshStandardMaterial({color:0x8a6d4c,roughness:.9,emissive:0x3a2a18,emissiveIntensity:.6});
-const W=5.90,D=3.40,H=3.48,HS=2.48,HF=0.80;   // רוחב, בליטה, גובה, זכוכית הזזה, זכוכית קבועה
+const W=5.90,D=3.40,H=3.48,HS=2.48,HF=0.70;   // רוחב, בליטה, גובה, זכוכית הזזה, זכוכית קבועה
 const g=new THREE.Group();S.add(g);
 // --- רחוב ובניין
 box(26,.04,16,PAVE,3,-.02,4,g);
@@ -49,17 +49,17 @@ function table(x,z,round){const t=round?new THREE.Mesh(new THREE.CylinderGeometr
 table(1.4,1.4);table(4.4,1.4);table(1.4,2.7,1);table(4.4,2.7,1);table(8.6,1.6,1);table(-2.4,1.8);
 // --- SKYTEKS Slide: מסגרת, עמודים, רפפות
 const sky={g:new THREE.Group(),sl:[]};g.add(sky.g);
-const TOPH=H, fb=.22;                                               // גובה עליון, עומק קורה
+const TOPH=H, fb=.30;                                               // גובה עליון, עומק קורה
 box(W,fb,.16,M.alu,W/2,TOPH-fb/2,.08,sky.g);                         // פרופיל קיר
 box(W+.12,fb,.16,M.alu,W/2,TOPH-fb/2,D,sky.g);                       // קורה קדמית + מרזב
 box(.14,fb,D,M.alu,.07,TOPH-fb/2,D/2,sky.g); box(.14,fb,D,M.alu,W-.07,TOPH-fb/2,D/2,sky.g);
-[.07,W-.07].forEach(x=>box(.14,TOPH-fb,.14,M.alu,x,(TOPH-fb)/2,D,sky.g));          // עמודים קדמיים
+[.07,W-.07].forEach(x=>box(.16,TOPH-fb,.16,M.alu,x,(TOPH-fb)/2,D,sky.g));          // עמודים קדמיים
 box(.03,(TOPH-fb),.03,M.alu,W/2,(TOPH-fb)/2,D+.09,sky.g);
 const NS=Math.ceil((D-.2)/.206);                                    // 17 רפפות של 20.6 ס"מ
 for(let i=0;i<NS;i++){const s=box(W-.28,.035,.2,SLAT,W/2,TOPH-.06,.16+i*.196,sky.g);sky.sl.push(s)}
 const ledS=box(W-.4,.02,.03,M.led,W/2,TOPH-fb-.01,D-.12,sky.g);leds.push(ledS);
 [1.5,4.4].forEach(x=>{const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(x,TOPH-.5,D/2);sky.g.add(p);lamps.push(p)});
-// --- זיגוג: הזזה Sürme Plus (0–248) + קבוע (248–328), שלוש חזיתות
+// --- זיגוג: הזזה Sürme Plus (0–248) + קבוע (248–318), שלוש חזיתות
 function pane(w,h,x,y,z,rotY,gg){const p=new THREE.Group();p.position.set(x,y,z);p.rotation.y=rotY||0;gg.add(p);
  box(w,h,.012,GL,0,0,0,p);box(w,.04,.03,M.alu,0,h/2-.02,0,p);box(w,.04,.03,M.alu,0,-h/2+.02,0,p);box(.035,h,.03,M.alu,-w/2+.017,0,0,p);box(.035,h,.03,M.alu,w/2-.017,0,0,p);return p}
 const glz=new THREE.Group();g.add(glz);
