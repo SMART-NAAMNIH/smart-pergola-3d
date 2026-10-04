@@ -25,23 +25,23 @@ const G=new THREE.Group();S.add(G);
  const wood=new THREE.MeshStandardMaterial({color:0x4a3626,roughness:.55});
  const rail=new THREE.MeshStandardMaterial({color:0xf4f2ec,roughness:.5,metalness:.2});
  // slab + wood-look floor
- box(3.0,.3,4.5,new THREE.MeshStandardMaterial({color:0xd8d3c8,roughness:.9}),1.25,-.15,2.1,g);
+ box(3.5,.3,4.5,new THREE.MeshStandardMaterial({color:0xd8d3c8,roughness:.9}),1.5,-.15,2.1,g);
  box(5.5,8,.3,new THREE.MeshStandardMaterial({color:0xe8e3d8,roughness:.95}),1.25,-4.3,-.15,g); // building facade below
- box(2.6,.02,4.1,wood,1.25,.01,2.05,g);
+ box(3.1,.02,4.1,wood,1.5,.01,2.05,g);
  // house wall with sliding door (z=0)
  box(5.5,3.4,.3,plaster,1.25,1.7,-.15,g);
  box(1.6,2.2,.04,M.glass,1.6,1.1,.01,g); box(1.7,.08,.06,M.dark,1.6,2.22,.02,g);
  // high side wall (left, x=0)
  box(.3,3.0,4.1,plaster,-.15,1.5,2.05,g);
  // front parapet + railing (z=4.1)
- box(2.7,.35,.25,plaster,1.25,.175,4.15,g);
- box(2.7,.05,.06,rail,1.25,1.15,4.15,g);
- for(let i=0;i<=26;i++)box(.025,.8,.025,rail,-.05+2.6*i/26,.75,4.15,g);
+ box(3.2,.35,.25,plaster,1.5,.175,4.15,g);
+ box(3.2,.05,.06,rail,1.5,1.15,4.15,g);
+ for(let i=0;i<=31;i++)box(.025,.8,.025,rail,-.05+3.1*i/31,.75,4.15,g);
  // right side railing
- box(.05,.05,3.6,rail,2.62,1.15,2.3,g);
- for(let i=0;i<=30;i++)box(.025,1.15,.025,rail,2.62,.58,.5+3.6*i/30,g);
- // round column at front-right
- const col=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,3.0,24),plaster);col.position.set(2.45,1.5,3.6);col.castShadow=col.receiveShadow=true;g.add(col);
+ box(.05,.05,3.6,rail,3.08,1.15,2.3,g);
+ for(let i=0;i<=30;i++)box(.025,1.15,.025,rail,3.08,.58,.5+3.6*i/30,g);
+ // round column at front-right — beside the pergola, not inside it
+ const col=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,3.0,24),plaster);col.position.set(2.74,1.5,3.6);col.castShadow=col.receiveShadow=true;g.add(col);
  // sea / bay far away
  const sea=new THREE.Mesh(new THREE.PlaneGeometry(400,200),new THREE.MeshStandardMaterial({color:0x5f8fb8,roughness:.3}));
  sea.rotation.x=-Math.PI/2;sea.position.set(0,-20,110);g.add(sea);
