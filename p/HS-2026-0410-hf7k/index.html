@@ -32,7 +32,7 @@ const G=new THREE.Group();S.add(G);
  box(5.5,3.4,.3,plaster,1.25,1.7,-.15,g);
  box(1.6,2.2,.04,M.glass,1.6,1.1,.01,g); box(1.7,.08,.06,M.dark,1.6,2.22,.02,g);
  // high side wall (left, x=0)
- box(.3,3.0,4.1,plaster,-.15,1.5,2.05,g);
+ box(.3,3.3,4.1,plaster,-.15,1.65,2.05,g);
  // front parapet + railing (z=4.1)
  box(3.2,.35,.25,plaster,1.5,.175,4.15,g);
  box(3.2,.05,.06,rail,1.5,1.15,4.15,g);
@@ -45,7 +45,7 @@ const G=new THREE.Group();S.add(G);
  // sea / bay far away
  const sea=new THREE.Mesh(new THREE.PlaneGeometry(400,200),new THREE.MeshStandardMaterial({color:0x5f8fb8,roughness:.3}));
  sea.rotation.x=-Math.PI/2;sea.position.set(0,-20,110);g.add(sea);
- const hf=2.55,hb=2.75;
+ const hf=2.28,hb=3.00; // Tenteks: drop = 12%*D + 24cm
  rts(g,0,2.5,4.0,hf,hb,[{x:.07,y:0},{x:2.43,y:0}]);
 })();
 SP.start({
