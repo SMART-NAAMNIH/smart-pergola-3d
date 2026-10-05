@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-0510</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>صندلة · RTS 1400 · 600×520 · RAL 1013 مطفي · 3 إمكانيات</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== سطح بيت — صندلة. الأبعاد بالمتر. جدار الغرفة على z=0، بروز الباطون 0.5م، البرجولا من z=0.5 حتى السور الأمامي z=5.7
+M.alu.color.set(0xd9ceb6); M.fab.color.set(0xeee4cc);
+const MG=new THREE.MeshStandardMaterial({color:0xcfe4ea,roughness:.05,metalness:.1,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false});
+const MZ=new THREE.MeshStandardMaterial({color:0xe8dcc0,roughness:.9,transparent:true,opacity:.82,side:THREE.DoubleSide});
+const MP=new THREE.MeshStandardMaterial({color:0xdcc488,roughness:.95});         // سور مطلي أصفر
+const MT=new THREE.MeshStandardMaterial({color:0x8f8c86,roughness:.55});          // بلاط رمادي كبير
+const MD=new THREE.MeshStandardMaterial({color:0xf1ead8,roughness:.6});
+const W=6.0,D=5.2,Z0=.5,HB=3.2,HF=2.34,PAR=1.1;
+const H=z=>HB+(HF-HB)*(z-Z0)/D-.11;                                              // أسفل الشرائح
+function frameRect(g,x1,x2,y1,y2,z,vertical){ // إطار ألمنيوم
+ const t=.05;
+ if(!vertical){box(x2-x1,t,t,M.alu,(x1+x2)/2,y1,z,g);box(x2-x1,t,t,M.alu,(x1+x2)/2,y2,z,g)}
+}
+function glassFront(g,y0,y1,z,x1,x2,n){ // زجاج منزلق بواجهة على محور x
+ const pw=(x2-x1)/n;
+ for(let i=0;i<n;i++){const cx=x1+pw*(i+.5);box(pw-.04,y1-y0-.06,.012,MG,cx,(y0+y1)/2,z+(i%2?.04:-.04),g);
+  box(.035,y1-y0,.04,M.alu,x1+pw*i+.02,(y0+y1)/2,z+(i%2?.04:-.04),g)}
+ box(x2-x1,.07,.14,M.alu,(x1+x2)/2,y0+.035,z,g);box(x2-x1,.07,.14,M.alu,(x1+x2)/2,y1-.035,z,g);
+ box(.05,y1-y0,.14,M.alu,x2-.025,(y0+y1)/2,z,g);
+}
+function glassSide(g,x,y0,y1,z1,z2,n){ // زجاج منزلق جانبي على محور z
+ const pw=(z2-z1)/n;
+ for(let i=0;i<n;i++){const cz=z1+pw*(i+.5);box(.012,y1-y0-.06,pw-.04,MG,x+(i%2?.04:-.04),(y0+y1)/2,cz,g);
+  box(.04,y1-y0,.035,M.alu,x+(i%2?.04:-.04),(y0+y1)/2,z1+pw*i+.02,g)}
+ box(.14,.07,z2-z1,M.alu,x,y0+.035,(z1+z2)/2,g);box(.14,.07,z2-z1,M.alu,x,y1-.035,(z1+z2)/2,g);
+}
+function triangle(g,x,yb){ // مثلث زجاج ثابت فوق الجانب
+ const s=new THREE.Shape();s.moveTo(Z0,yb);s.lineTo(Z0,H(Z0));s.lineTo(Z0+D,H(Z0+D));s.lineTo(Z0+D,yb);s.lineTo(Z0,yb);
+ const geo=new THREE.ShapeGeometry(s);const m=new THREE.Mesh(geo,MG);m.rotation.y=-Math.PI/2;m.position.set(x,0,0);g.add(m);
+ // الإطار المائل
+ beam(V(x,H(Z0),Z0),V(x,H(Z0+D),Z0+D),.06,.06,M.alu,g);
+ box(.06,H(Z0)-yb,.06,M.alu,x,(H(Z0)+yb)/2,Z0+.03,g);
+}
+function zipFront(g,y0,y1,z,x1,x2){ // شاشة Zip مع علبة وسكك
+ box(x2-x1,.13,.13,M.alu,(x1+x2)/2,y1-.065,z,g);
+ box(x2-x1-.08,y1-y0-.13,.01,MZ,(x1+x2)/2,(y0+y1-.13)/2,z,g);
+ box(.05,y1-y0,.07,M.alu,x1+.025,(y0+y1)/2,z,g);box(.05,y1-y0,.07,M.alu,x2-.025,(y0+y1)/2,z,g);
+ box(x2-x1-.08,.05,.05,M.alu,(x1+x2)/2,y0+.03,z,g);
+}
+function zipSide(g,x,y0,y1,z1,z2){
+ box(.13,.13,z2-z1,M.alu,x,y1-.065,(z1+z2)/2,g);
+ box(.01,y1-y0-.13,z2-z1-.08,MZ,x,(y0+y1-.13)/2,(z1+z2)/2,g);
+ box(.07,y1-y0,.05,M.alu,x,(y0+y1)/2,z1+.025,g);box(.07,y1-y0,.05,M.alu,x,(y0+y1)/2,z2-.025,g);
+ box(.05,.05,z2-z1-.08,M.alu,x,y0+.03,(z1+z2)/2,g);
+}
+function scene(g,opt){
+ const fl=new THREE.Mesh(new THREE.PlaneGeometry(16,11),MT);fl.rotation.x=-Math.PI/2;fl.position.set(4,0,3);fl.receiveShadow=true;g.add(fl);
+ box(11,3.2,.4,stoneMat(11,3.2),4.5,1.6,-.2,g);                                  // جدار غرفة السطح (حجر)
+ box(11.2,.32,.95,stoneMat(11.2,.32),4.5,3.36,.08,g);                            // بروز الباطون 50 سم
+ box(.95,2.15,.06,MD,7.4,1.075,.03,g);box(1.1,.08,.08,M.cap,7.4,2.17,.04,g);      // الباب
+ box(.45,.45,.05,M.cap,6.3,2.6,.03,g);                                           // إنارة الحائط
+ box(12.5,PAR,.25,MP,4.25,PAR/2,Z0+D+.125,g);box(12.6,.06,.35,M.cap,4.25,PAR+.03,Z0+D+.125,g); // السور الأمامي
+ box(.25,PAR,Z0+D,MP,-.125,PAR/2,(Z0+D)/2,g);box(.35,.06,Z0+D+.1,M.cap,-.125,PAR+.03,(Z0+D)/2,g); // السور اليمين
+ const pot=new THREE.Mesh(new THREE.CylinderGeometry(.35,.27,.75,24),M.dark);pot.position.set(8.6,.375,Z0+D-.45);pot.castShadow=true;g.add(pot);
+ const tr=new THREE.Mesh(new THREE.CylinderGeometry(.05,.07,1.6,8),new THREE.MeshStandardMaterial({color:0x7b6a4f}));tr.position.set(8.6,1.55,Z0+D-.45);g.add(tr);
+ const bush=new THREE.Mesh(new THREE.SphereGeometry(.75,16,12),new THREE.MeshStandardMaterial({color:0x4f7a3a,roughness:.9}));bush.scale.set(1,.7,1);bush.position.set(8.6,2.5,Z0+D-.45);g.add(bush);
+ const sg=new THREE.Group();sg.position.z=Z0;g.add(sg);
+ rts(sg,0,W,D,HF,HB,[{x:.07,y:PAR},{x:W-.07,y:PAR}]);
+ const zf=Z0+D-.02, yTop=H(Z0+D);
+ if(opt===2){
+  glassFront(g,PAR+.06,yTop,zf,.14,W-.14,6);
+  glassSide(g,.07,PAR+.06,yTop,Z0+.1,Z0+D-.08,6);triangle(g,.07,yTop);
+  glassSide(g,W-.07,0,yTop,Z0+.1,Z0+D-.08,6);box(.08,yTop,.08,M.alu,W-.07,yTop/2,Z0+D-.04,g);triangle(g,W-.07,yTop);
+ }
+ if(opt===3){
+  zipFront(g,PAR+.06,yTop,zf,.14,W/2);zipFront(g,PAR+.06,yTop,zf,W/2,W-.14);
+  zipSide(g,.1,PAR+.06,yTop,Z0+.1,Z0+D/2);zipSide(g,.1,PAR+.06,yTop,Z0+D/2,Z0+D-.1);triangle(g,.07,yTop);
+  zipSide(g,W-.1,0,yTop,Z0+.1,Z0+D/2);zipSide(g,W-.1,0,yTop,Z0+D/2,Z0+D-.1);box(.08,yTop,.08,M.alu,W-.07,yTop/2,Z0+D-.04,g);triangle(g,W-.07,yTop);
+ }
+}
+const G=[1,2,3].map((o,i)=>{const g=new THREE.Group();g.position.set(i*70,0,0);S.add(g);scene(g,o);return g});
+const vw=(dx)=>({all:[[13.5+dx,6.2,13.5],[3.2+dx,1.6,3]],inside:[[10.2+dx,2.3,0.9],[2.2+dx,1.5,5.2]],side:[[14+dx,2.6,4.5],[3+dx,1.7,3]]});
+const v1=vw(0),v2=vw(70),v3=vw(140);
+SP.start({
+ views:{all:v1.all,inside:v1.inside,side:v1.side,all2:v2.all,inside2:v2.inside,side2:v2.side,all3:v3.all,inside3:v3.inside,side3:v3.side},
+ projects:[{label:'1 · برجولا فقط',view:'all'},{label:'2 · مع زجاج',view:'all2'},{label:'3 · مع Zip',view:'all3'}]
+});
+</script>
+</body>
+</html>
