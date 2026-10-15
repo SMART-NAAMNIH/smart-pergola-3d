@@ -19,6 +19,7 @@
 M.alu.color.set(0x383e42);                                   // RAL 7016
 const LV=new THREE.MeshStandardMaterial({color:0xcfd0cf,roughness:.5,metalness:.25}); // RAL 7047
 const PL=new THREE.MeshStandardMaterial({color:0xe2d6bd,roughness:.9});             // plaster
+const PC=new THREE.MeshStandardMaterial({color:0xdfe8ec,roughness:.25,metalness:.05,transparent:true,opacity:.55}); // سنتاف PH
 const MODE='roll';  // slide | roll | fix (default for units)
 // sky(g, x0, LX, LZ, h, opt): unit on the floor of group g; louvers span along opt.span ('x' default) and stack along the other axis
 function sky(g,x0,LX,LZ,h,opt){opt=opt||{};const u={g:new THREE.Group(),sky:true,mode:opt.mode||MODE,span:opt.span||'x',lv:[]};g.add(u.g);
@@ -26,8 +27,11 @@ function sky(g,x0,LX,LZ,h,opt){opt=opt||{};const u={g:new THREE.Group(),sky:true
  box(LX,ph,.14,M.alu,x0+LX/2,h,z0,u.g);box(LX,ph,.16,M.alu,x0+LX/2,h,z0+LZ,u.g);
  box(.14,ph,LZ,M.alu,x0,h,z0+LZ/2,u.g);box(.14,ph,LZ,M.alu,x0+LX,h,z0+LZ/2,u.g);
  [[x0,z0+LZ],[x0+LX,z0+LZ]].concat(opt.mid?[[x0+LX/2,z0+LZ]]:[]).forEach(([x,z])=>box(.15,h-ph/2,.15,M.alu,x,(h-ph/2)/2,z,u.g));
- box(LX-.3,.012,.03,M.led,x0+LX/2,h-.11,z0+LZ-.12,u.g);box(LX-.3,.012,.03,M.led,x0+LX/2,h-.11,z0+.12,u.g);
- const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(x0+LX/2,h-.5,z0+LZ/2);u.g.add(p);lamps.push(p);
+ if(u.mode!=='pc'){box(LX-.3,.012,.03,M.led,x0+LX/2,h-.11,z0+LZ-.12,u.g);box(LX-.3,.012,.03,M.led,x0+LX/2,h-.11,z0+.12,u.g);
+ const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(x0+LX/2,h-.5,z0+LZ/2);u.g.add(p);lamps.push(p);}
+ if(u.mode==='pc'){const k=Math.ceil(LX/3.5);for(let i=1;i<k;i++)box(.15,h-ph/2,.15,M.alu,x0+LX*i/k,(h-ph/2)/2,z0+LZ,u.g);
+  const r=Math.max(2,Math.round(LX/.9)+1);for(let i=0;i<r;i++)box(.06,.12,LZ,M.alu,x0+.07+(LX-.14)*i/(r-1),h+.12,z0+LZ/2,u.g);
+  const sh=box(LX-.1,.012,LZ-.05,PC,x0+LX/2,h+.19,z0+LZ/2,u.g);sh.castShadow=false;u.place=()=>{};units.push(u);return u}
  const run=u.span==='x'?LZ:LX,len=(u.span==='x'?LX:LZ)-.16,n=Math.floor((run-.1)/.206);u.run=run;u.n=n;
  for(let i=0;i<n;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(u.span==='x'?len:.2,.028,u.span==='x'?.2:len),LV);m.castShadow=m.receiveShadow=true;
   m.userData.s=.05+.103+i*.206;u.g.add(m);u.lv.push(m)}
@@ -53,10 +57,8 @@ sky(S,0,6.95,4.25,h,{mode:'roll',span:'z',mid:true});
 sky(S,7.800,3.05,4.5,h);
 sky(S,10.850,3.05,4.5,h);
 const G3=new THREE.Group();G3.rotation.y=-Math.PI/2;G3.position.set(-1.6,0,-9.35);S.add(G3);
-sky(G3,0.000,3.033,3.1,h);
-sky(G3,3.033,3.033,3.1,h);
-sky(G3,6.066,3.033,3.1,h);
-sky(S,14.4,2.55,2.0,h,{mode:'fix'});
+sky(G3,0,9.1,3.1,h,{mode:'pc'});
+sky(S,14.4,2.55,2.0,h,{mode:'pc'});
 SP.start({
  views:{all:[[-13,10,19],[5,1.2,0]], side:[[19,5,12],[8,2,2]], inside:[[8.6,1.5,.7],[10.5,2.15,9]], z3:[[-11,5,3],[-3,1.8,-5]]},
  projects:[{label:'المشروع كاملاً',view:'all'},{label:'المنطقة 3 (الجانب)',view:'z3'},{label:'من الداخل',view:'inside'}]
