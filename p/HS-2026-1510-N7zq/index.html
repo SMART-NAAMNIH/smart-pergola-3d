@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-1510</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>بعينة نجيدات · فتحتا الشرفة · Zip Screen · RAL 1013</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== شرفة بفتحتين 2.10×1.50 م، ستائر Zip داخل الفتحة — الأبعاد بالمتر =====
+M.alu.color.set(0xe3d9c3); M.alu.roughness=.5; M.alu.metalness=.2;   // RAL 1013
+const SCR=new THREE.MeshStandardMaterial({color:0x6f6a62,roughness:.9,transparent:true,opacity:.82,side:THREE.DoubleSide});
+const IRON=new THREE.MeshStandardMaterial({color:0x2a2622,roughness:.5,metalness:.5});
+const G=new THREE.Group();S.add(G);
+const T=.35, SILL=.55, OH=1.5, OW=2.1, PIL=.55, TOP=SILL+OH, CEIL=2.95;
+const X1=0, X2=OW+PIL, XE=2*OW+PIL;
+// أرضية الشرفة (داخل z>0) والأرض الخارجية
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(7,4.2),new THREE.MeshStandardMaterial({map:(()=>{const t=TT.clone();t.needsUpdate=true;t.repeat.set(7/.6,4.2/.6);return t})(),roughness:.8}));
+fl.rotation.x=-Math.PI/2;fl.position.set(XE/2,0,2.1);fl.receiveShadow=true;G.add(fl);
+const field=new THREE.Mesh(new THREE.PlaneGeometry(200,120),new THREE.MeshStandardMaterial({color:0xc9b48a,roughness:1}));
+field.rotation.x=-Math.PI/2;field.position.set(XE/2,-6,-60);G.add(field);
+[[-30,-70,40,9],[20,-80,55,11],[60,-65,35,7]].forEach(([x,z,r,h])=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,24,12,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0x8a8a5c,roughness:1}));m.scale.y=h/r;m.position.set(x,-6,z);G.add(m)});
+// الجدار الحجري بالفتحتين
+const wz=-T/2;
+box(1.0,CEIL,T,stoneMat(1,CEIL),X1-.5,CEIL/2,wz,G);                 // عمود يسار
+box(1.0,CEIL,T,stoneMat(1,CEIL),XE+.5,CEIL/2,wz,G);                 // عمود يمين
+box(PIL,OH,T,stoneMat(PIL,OH),OW+PIL/2,SILL+OH/2,wz,G);             // العمود الأوسط
+box(XE,SILL,T,stoneMat(XE,SILL),XE/2,SILL/2,wz,G);                  // الجلسة
+box(XE+.1,.05,T+.12,M.cap,XE/2,SILL+.025,wz+.03,G);                 // حجر الجلسة
+box(XE,CEIL-TOP,T,stoneMat(XE,CEIL-TOP),XE/2,TOP+(CEIL-TOP)/2,wz,G);// الساكف
+box(XE+2.2,.2,4.4,M.cap,XE/2,CEIL+.1,2.0,G);                        // السقف
+box(.3,CEIL,4.2,stoneMat(4.2,CEIL),-1.15,CEIL/2,2.1,G);              // جدار جانبي
+// درابزين حديد قائم داخل الفتحتين (قرب الوجه الخارجي)
+[[X1,OW],[X2,X2+OW]].forEach(([a,b])=>{box(b-a,.04,.04,IRON,(a+b)/2,SILL+1.0,-T+.06,G);box(b-a,.03,.03,IRON,(a+b)/2,SILL+.08,-T+.06,G);
+ for(let x=a+.12;x<b-.05;x+=.13)box(.018,.92,.018,IRON,x,SILL+.54,-T+.06,G)});
+// ===== وحدات Zip: صندوق علوي + مجاري جانبية + قماش ينزل من الأعلى =====
+function zip(x0,W){
+ const u={zip:true,g:new THREE.Group(),x0,W};G.add(u.g);
+ const z=-.06;                                                      // داخل الفتحة من جهة الشرفة
+ box(W,.11,.11,M.alu,x0+W/2,TOP-.055,z,u.g);                        // الصندوق
+ box(.045,OH-.11,.07,M.alu,x0+.0225,SILL+(OH-.11)/2,z,u.g);        // مجرى يسار
+ box(.045,OH-.11,.07,M.alu,x0+W-.0225,SILL+(OH-.11)/2,z,u.g);      // مجرى يمين
+ u.fab=new THREE.Group();u.g.add(u.fab);units.push(u);return u}
+const _sf=setFabric;
+setFabric=function(u,t){ if(!u.zip) return _sf(u,t);
+ u.fab.clear(); const H=Math.max(.02,(OH-.11)*(1-t)), z=-.06, top=TOP-.11;
+ box(u.W-.09,H,.008,SCR,u.x0+u.W/2,top-H/2,z,u.fab);
+ box(u.W-.09,.035,.03,M.alu,u.x0+u.W/2,top-H-.017,z,u.fab);};       // القضيب السفلي
+zip(X1,OW); zip(X2,OW);
+SP.start({
+ views:{all:[[XE/2,1.7,4.6],[XE/2,1.3,-.2]], side:[[XE+.6,1.7,3.4],[1.6,1.3,-.2]], inside:[[XE/2-.6,1.45,2.6],[XE/2,1.3,-.5]], out:[[XE/2+1.5,2.2,-6],[XE/2,1.4,0]]},
+ projects:[{label:'الشرفة · من الداخل',view:'all'},{label:'من الخارج',view:'out'}],
+ labels:{open:'رفع الستارة',night:'ليلي'}
+});
+</script>
+</body>
+</html>
