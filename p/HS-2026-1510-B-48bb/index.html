@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-1510-B</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>كفر برا · عفيف درع · SKYTEKS Slide · RAL 7016 / 7047</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== SKYTEKS — مشهد المشروع (بالمتر). الجدار على z=0 والبروز نحو +z =====
+M.alu.color.set(0x383e42);                                   // RAL 7016
+const LV=new THREE.MeshStandardMaterial({color:0xcfd0cf,roughness:.5,metalness:.25}); // RAL 7047
+const PL=new THREE.MeshStandardMaterial({color:0xe2d6bd,roughness:.9});             // plaster
+const MODE='slide';  // slide | roll | fix (default for units)
+// sky(g, x0, LX, LZ, h, opt): unit on the floor of group g; louvers span along opt.span ('x' default) and stack along the other axis
+function sky(g,x0,LX,LZ,h,opt){opt=opt||{};const u={g:new THREE.Group(),sky:true,mode:opt.mode||MODE,span:opt.span||'x',lv:[]};g.add(u.g);
+ const z0=.05,b=.2,ph=.2;
+ box(LX,ph,.14,M.alu,x0+LX/2,h,z0,u.g);box(LX,ph,.16,M.alu,x0+LX/2,h,z0+LZ,u.g);
+ box(.14,ph,LZ,M.alu,x0,h,z0+LZ/2,u.g);box(.14,ph,LZ,M.alu,x0+LX,h,z0+LZ/2,u.g);
+ [[x0,z0+LZ],[x0+LX,z0+LZ]].concat(opt.mid?[[x0+LX/2,z0+LZ]]:[]).forEach(([x,z])=>box(.15,h-ph/2,.15,M.alu,x,(h-ph/2)/2,z,u.g));
+ box(LX-.3,.012,.03,M.led,x0+LX/2,h-.11,z0+LZ-.12,u.g);box(LX-.3,.012,.03,M.led,x0+LX/2,h-.11,z0+.12,u.g);
+ const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(x0+LX/2,h-.5,z0+LZ/2);u.g.add(p);lamps.push(p);
+ const run=u.span==='x'?LZ:LX,len=(u.span==='x'?LX:LZ)-.16,n=Math.floor((run-.1)/.206);u.run=run;u.n=n;
+ for(let i=0;i<n;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(u.span==='x'?len:.2,.028,u.span==='x'?.2:len),LV);m.castShadow=m.receiveShadow=true;
+  m.userData.s=.05+.103+i*.206;u.g.add(m);u.lv.push(m)}
+ u.place=(t)=>{const rot=u.mode==='fix'?0:u.mode==='roll'?Math.PI/2*t:Math.min(1,t/.4)*52*Math.PI/180;
+  const st=u.mode==='slide'?Math.max(0,(t-.4)/.6):0;
+  u.lv.forEach((m,i)=>{const s0=m.userData.s,s=s0-(s0-.12-i*.06)*st;
+   if(u.span==='x'){m.position.set(x0+LX/2,h+.02,z0+s);m.rotation.set(rot,0,0)}else{m.position.set(x0+s,h+.02,z0+LZ/2);m.rotation.set(0,0,-rot)}})};
+ u.place(0);units.push(u);return u}
+setFabric=function(u,t){if(u.sky)u.place(t)};
+// ---- الأرضية والمبنى
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(40,30),new THREE.MeshStandardMaterial({map:(()=>{const t=TT.clone();t.needsUpdate=true;t.repeat.set(40/.8,30/.8);return t})(),roughness:.8}));
+fl.rotation.x=-Math.PI/2;fl.position.set(7,0,6);fl.receiveShadow=true;S.add(fl);
+box(18.6,3.3,.4,stoneMat(18.6,3.3),7.7,1.65,-.2);box(18.6,5,.4,PL,7.7,5.8,-.2);          // main facade
+box(.4,3.3,12,stoneMat(12,3.3),-1.4,1.65,-6.2);box(.4,5,12,PL,-1.4,5.8,-6.2);           // side wall (zone 3)
+box(4.2,1.1,2.2,M.dark,3.5,3.85,1.1);box(4.2,1.2,.04,M.glass,3.5,5,2.2);               // upper balcony
+[[1.6,1.2],[5.2,1.2],[10.6,1.2],[13.1,1.2]].forEach(([x,y])=>{box(2.2,2.4,.05,M.glass,x,y,.01);box(2.3,.08,.08,M.dark,x,2.44,.03)});
+box(.45,3.3,.45,stoneMat(.45,3.3),7.55,1.65,.2);                                         // stone pier between zones
+const rail=new THREE.MeshStandardMaterial({color:0x2a2d30,roughness:.6,metalness:.4});
+box(.25,.35,26,PL,18,.17,0);box(.05,1.1,26,rail,18,.9,0);box(27,.35,.25,PL,4.5,.17,13);box(27,1.1,.05,rail,4.5,.9,13);box(.25,.35,26,PL,-9,.17,0);box(.05,1.1,26,rail,-9,.9,0);
+// ---- الوحدات
+const h=2.9;
+sky(S,0.000,3.475,4.25,h);
+sky(S,3.475,3.475,4.25,h);
+sky(S,7.800,3.05,4.5,h);
+sky(S,10.850,3.05,4.5,h);
+const G3=new THREE.Group();G3.rotation.y=-Math.PI/2;G3.position.set(-1.6,0,-9.35);S.add(G3);
+sky(G3,0.000,3.033,3.1,h);
+sky(G3,3.033,3.033,3.1,h);
+sky(G3,6.066,3.033,3.1,h);
+sky(S,14.4,2.55,2.0,h,{mode:'fix'});
+SP.start({
+ views:{all:[[-13,10,19],[5,1.2,0]], side:[[19,5,12],[8,2,2]], inside:[[8.6,1.5,.7],[10.5,2.15,9]], z3:[[-11,5,3],[-3,1.8,-5]]},
+ projects:[{label:'المشروع كاملاً',view:'all'},{label:'المنطقة 3 (الجانب)',view:'z3'},{label:'من الداخل',view:'inside'}]
+});
+</script>
+</body>
+</html>
