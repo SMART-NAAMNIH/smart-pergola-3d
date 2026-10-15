@@ -56,7 +56,7 @@ const G1=new THREE.Group(),G2=new THREE.Group();S.add(G1,G2);
  box(W,hp,.3,stoneMat(W,hp),W/2,hp/2,.15,g);box(W+.1,.06,.38,M.cap,W/2,hp+.03,.15,g); // الحفة الحجرية
  box(.3,hp+hg,D,stoneMat(D,3),W+.15,(hp+hg)/2,-D/2,g);                             // الجدار الجانبي
  box(W+.6,.5,D+.6,stoneMat(W+.6,.5),W/2,hp+hg+.25,-D/2+.15,g);                    // السقف
- guillotine(g,0,hp+.06,.15,2.0,hg);guillotine(g,2.0,hp+.06,.15,2.0,hg);fixedG(g,4.0,hp+.06,.15,.46,hg);
+ guillotine(g,0,hp+.06,.15,4.0,hg);fixedG(g,4.0,hp+.06,.15,.46,hg);
  sliding(g,4.46,hp+.06,.15,2.24,hg);})();
 
 // ---------- المشروع 2: الشرفة العلوية — 75+400+75 أمام، 60 و85 جانبان، ارتفاع 238
@@ -68,7 +68,7 @@ const G1=new THREE.Group(),G2=new THREE.Group();S.add(G1,G2);
  box(.3,hp+hg,D-dL,stucco(),-.15,(hp+hg)/2,-(D+dL)/2,g);box(.3,hp+hg,D-dR,stucco(),W+.15,(hp+hg)/2,-(D+dR)/2,g); // جدران جانبية
  box(W+.3,hp,.25,stucco(),W/2,hp/2,.12,g);box(.25,hp,dL,stucco(),.0,hp/2,-dL/2,g);box(.25,hp,dR,stucco(),W,hp/2,-dR/2,g);
  box(W+.9,.55,D+.9,stucco(),W/2,hp+hg+.27,-D/2+.2,g);                             // السقف
- const y=hp;fixedG(g,0,y,.12,.75,hg);guillotine(g,.75,y,.12,2.0,hg);guillotine(g,2.75,y,.12,2.0,hg);fixedG(g,4.75,y,.12,.75,hg);
+ const y=hp;fixedG(g,0,y,.12,.75,hg);guillotine(g,.75,y,.12,4.0,hg);fixedG(g,4.75,y,.12,.75,hg);
  fixedG(g,0,y,-dL,dL,hg,-Math.PI/2);fixedG(g,W,y,0,dR,hg,Math.PI/2);})();
 SP.start({
  views:{all:[[-2.5,3.2,7.5],[3.3,1.7,-.6]], side:[[9.5,2.8,4.8],[3.2,1.7,-.8]], inside:[[46.5,3.3,6.2],[42.7,1.4,-.5]],
