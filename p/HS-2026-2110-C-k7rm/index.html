@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-2110-C</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>شفاعمرو · مشروعان · RTS PVC + زجاج غيوتين · RAL 9005 مطفي</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== شفاعمرو — محمد لطفي أبو ريا — الأبعاد بالمتر =====
+const deckMat=(w,d)=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+ x.fillStyle='#3b342e';x.fillRect(0,0,256,256);x.strokeStyle='#2a2420';x.lineWidth=3;
+ for(let i=0;i<=8;i++){x.beginPath();x.moveTo(0,i*32);x.lineTo(256,i*32);x.stroke()}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.encoding=THREE.sRGBEncoding;t.repeat.set(w/1.2,d/1.2);
+ return new THREE.MeshStandardMaterial({map:t,roughness:.85})};
+const GL=new THREE.MeshStandardMaterial({color:0x9fb7c4,roughness:.05,metalness:.2,transparent:true,opacity:.35,side:THREE.DoubleSide});
+function floor(g,w,d,x,z){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),deckMat(w,d));m.rotation.x=-Math.PI/2;m.position.set(x,.01,z);m.receiveShadow=true;g.add(m)}
+function rail(g,x1,z1,x2,z2){const a=V(x1,0,z1),b=V(x2,0,z2),L=a.distanceTo(b),n=Math.round(L/.14);
+ beam(V(x1,1.05,z1),V(x2,1.05,z2),.04,.04,M.alu,g);for(let i=0;i<=n;i++){const p=a.clone().lerp(b,i/n);box(.02,1.05,.02,M.alu,p.x,.52,p.z,g)}}
+// glass panel set along x (z fixed) or along z (x fixed)
+function glassX(g,x1,x2,z,h,div){box(x2-x1,.06,.1,M.alu,(x1+x2)/2,.03,z,g);box(x2-x1,.08,.1,M.alu,(x1+x2)/2,h-.04,z,g);
+ for(let i=0;i<=div;i++){const x=x1+(x2-x1)*i/div;box(.07,h,.1,M.alu,x,h/2,z,g)}
+ box(x2-x1,h-.14,.02,GL,(x1+x2)/2,h/2,z,g);box(x2-x1,.05,.08,M.alu,(x1+x2)/2,h/2,z,g)}
+function glassZ(g,z1,z2,x,h,div){box(.1,.06,z2-z1,M.alu,x,.03,(z1+z2)/2,g);box(.1,.08,z2-z1,M.alu,x,h-.04,(z1+z2)/2,g);
+ for(let i=0;i<=div;i++){const z=z1+(z2-z1)*i/div;box(.1,h,.07,M.alu,x,h/2,z,g)}
+ box(.02,h-.14,z2-z1,GL,x,h/2,(z1+z2)/2,g);box(.08,.05,z2-z1,M.alu,x,h/2,(z1+z2)/2,g)}
+// fixed glass triangle at side x, between top of glazing (h0) and sloped roof (hb at z=0 -> hf at z=D)
+function tri(g,x,D,h0,hf,hb){const s=new THREE.Shape();s.moveTo(0,h0);s.lineTo(D,h0);s.lineTo(D,hf);s.lineTo(0,hb);s.lineTo(0,h0);
+ const m=new THREE.Mesh(new THREE.ShapeGeometry(s),GL);m.rotation.y=-Math.PI/2;m.position.set(x,0,0);g.add(m);
+ beam(V(x,h0,0),V(x,h0,D),.08,.06,M.alu,g)}
+
+// ---------- Project 1 : 16 x 2 along the facade, two units of 8 m
+const G1=new THREE.Group(),G2=new THREE.Group();S.add(G1,G2);
+(function(){const g=G1;
+ floor(g,20,6,8,2);
+ box(20,5,.4,stoneMat(20,5),8,2.5,-.2,g);
+ [[2,1.3],[6,1.3],[10,1.3],[14,1.3]].forEach(([x,y])=>box(1.6,2.4,.05,M.glass,x,1.2,.01,g));
+ rail(g,-1.5,4.2,17.5,4.2);
+ const hf=2.6,hb=hf+.48;
+ rts(g,0,8,2,hf,hb,[{x:.06,y:0},{x:4,y:0}]);
+ rts(g,8,8,2,hf,hb,[{x:8,y:0},{x:12,y:0},{x:15.94,y:0}]);
+})();
+// ---------- Project 2 : 6 x 6 closed with guillotine glass
+(function(){const g=G2;g.position.set(40,0,0);
+ floor(g,14,12,3,4);
+ box(14,5,.4,stoneMat(14,5),3,2.5,-.2,g);
+ box(1.4,2.3,.05,M.glass,4.2,1.15,.01,g);
+ const D=6,W=6,hf=2.45,hb=hf+.72+.24,hg=2.4;
+ rts(g,0,W,D,hf,hb,[{x:.06,y:0},{x:3,y:0},{x:5.94,y:0}]);
+ // front: 2 x 300 guillotine
+ glassX(g,.06,3,D,hg,3);glassX(g,3,5.94,D,hg,3);
+ // street side (right, x=6): 2 x 300 guillotine + triangle
+ glassZ(g,.06,3,W-.06,hg,3);glassZ(g,3,D-.06,W-.06,hg,3);tri(g,W-.06,D,hg,hf,hb);
+ // stair side (left, x=0): window 480 (2 x 240) + hinged door 120 near the front
+ glassZ(g,.06,2.46,.06,hg,2);glassZ(g,2.46,4.86,.06,hg,2);
+ box(.1,hg,.08,M.alu,.06,hg/2,4.86,g);box(.1,hg,.08,M.alu,.06,hg/2,D-.06,g);box(.1,.08,1.2,M.alu,.06,hg-.04,5.43,g);
+ box(.02,hg-.1,1.1,GL,.06,hg/2,5.43,g);box(.04,.3,.04,M.alu,.12,1.05,5.0,g);
+ tri(g,.06,D,hg,hf,hb);
+ // stairs going down beside the door
+ for(let i=0;i<5;i++)box(1.3,.17,.32,stoneMat(1.3,.17),-.9,-.085-.17*i,5.2+.32*i,g);
+ rail(g,6.6,6.8,-1.6,6.8);
+})();
+SP.start({
+ views:{all:[[48.5,5.2,15],[43,1.6,3]], side:[[34.5,3.4,11.5],[42.5,1.6,3.5]], inside:[[1.5,4.6,10.5],[8,1.4,1]],
+        p1:[[2.5,4.2,11],[8,1.6,1]]},
+ projects:[{label:'المشروع 1 · برجولا 16×2',view:'p1'},{label:'المشروع 2 · برجولا 6×6 مغلقة',view:'all'}]
+});
+</script>
+</body>
+</html>
