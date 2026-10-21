@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · הדמיה תלת־ממדית · HS-2026-1910</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>חיפה · SKYTEKS Roll 1400 + Zip ×2 · RAL 7016</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== Haifa — SKYTEKS Roll 1400 317x572 on house wall h305, one side post (70 cm from outer end) + side gutter; fixed strip 35 cm + Zip 521x217 in 2 units / 3 posts 12x12 =====
+M.alu.color.set(0x383e42);                      // RAL 7016
+const ZF=new THREE.MeshStandardMaterial({color:0x4a4f52,roughness:.9,transparent:true,opacity:.82,side:THREE.DoubleSide});
+const W=3.17,D=5.72,hb=3.05,hf=2.85,T=.30;
+const H=z=>hb+(hf-hb)*z/D;
+const g=new THREE.Group();S.add(g);
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(14,12),new THREE.MeshStandardMaterial({map:(()=>{const t=TT.clone();t.needsUpdate=true;t.repeat.set(14/.8,12/.8);return t})(),roughness:.8}));
+fl.rotation.x=-Math.PI/2;fl.position.set(2.5,0,3.5);fl.receiveShadow=true;g.add(fl);
+box(9,4.2,.4,stoneMat(9,4.2),1.6,2.1,-.2,g);
+box(2.2,2.4,.05,M.glass,1.5,1.2,.01,g);
+const xw=W+T/2;
+box(T,hb,.5,stoneMat(.5,hb),xw,hb/2,.25,g);
+box(T,hb,.6,stoneMat(.6,hb),xw,hb/2,D-.3,g);
+box(T,.9,D-1.1,stoneMat(D-1.1,.9),xw,hb-.45,D/2,g);
+box(W+T,1.42,.3,stoneMat(W,1.42),W/2+.15,.71,D+.15,g); box(W+T+.1,.06,.4,M.cap,W/2+.15,1.45,D+.15,g);
+const xr=xw+T/2+.35+.6;
+for(let i=0;i<6;i++)box(.02,.02,D+.6,M.dark,xr,.15+i*.18,D/2,g);
+box(.05,.05,D+.6,M.dark,xr,1.05,D/2,g);
+// --- SKYTEKS Roll frame
+beam(V(0,hb,.06),V(W,hb,.06),.12,.2,M.alu,g);
+beam(V(.07,hb,.06),V(.07,hf,D),.14,.22,M.alu,g);
+beam(V(W-.07,hb,.06),V(W-.07,hf,D),.14,.22,M.alu,g);
+beam(V(0,hf,D),V(W,hf,D),.16,.24,M.alu,g);
+// side gutter on the open side + one side post, 70 cm from the outer end, beside the frame (not under it)
+beam(V(-.09,hb-.06,.06),V(-.09,hf-.06,D),.1,.14,M.alu,g);
+const zp=D-.70, hp=H(zp);
+box(.135,hp,.135,M.alu,-.09,hp/2,zp,g);
+// LED + lamps
+[.16,W-.16].forEach(x=>{leds.push(beam(V(x,hb-.12,.3),V(x,hf-.12,D-.1),.03,.012,M.led,g))});
+[[W/2,1.4],[W/2,4.2]].forEach(([x,z])=>{const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(x,2.3,z);g.add(p);lamps.push(p)});
+const slats=new THREE.Group();g.add(slats);const N=Math.ceil((D-.2)/.173);
+function drawSlats(t){slats.clear();const pitch=.173*(1-t)+.03*t;
+ for(let k=0;k<N;k++){const z=.15+k*pitch+.08;if(z>D-.05)break;
+  box(W-.28,.03,.165,M.alu,W/2,H(z)+.02,z,slats)}}
+setOpen=function(t){drawSlats(t)};
+// --- fixed strip 35 cm (unchanged) + Zip 521x217 in two units between 3 posts 12x12
+const xz=xw+T/2+.35, L=5.44, zc=D/2, hz=3.20, zh=2.17, hd=hz-.18;
+box(.35+T,.08,L,M.alu,xw+.175,hz+.04,zc,g);
+box(.06,.18,L,M.alu,xz,hz-.09,zc,g);
+const zl=zc-5.21/2-.06, zr=zc+5.21/2+.06;
+[zl,zc,zr].forEach(z=>box(.12,hz,.12,M.alu,xz,hz/2,z,g));
+const uw=(5.21-.12)/2;
+[zc-.06-uw/2, zc+.06+uw/2].forEach(z=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(uw,zh),ZF);m.rotation.y=Math.PI/2;m.position.set(xz,hd-zh/2,z);g.add(m);
+ box(.05,.04,uw,M.alu,xz,hd-zh,z,g)});
+SP.start({
+ views:{all:[[-4.8,4.9,10.8],[2.0,1.6,2.8]], side:[[10.8,3.6,8.0],[2.6,1.8,2.8]], inside:[[-3.6,8.8,10.0],[1.8,2.2,2.6]], persp:[[-4.8,4.9,10.8],[2.0,1.6,2.8]]},
+ projects:[{label:'מבט כללי',view:'all'},{label:'צד ה-Zip',view:'side'}],
+ labels:{open:'פתיחת הגג',night:'לילה'}
+});
+</script>
+</body>
+</html>
