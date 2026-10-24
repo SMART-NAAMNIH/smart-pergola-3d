@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-2410-B</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>حيفا · SKYTEKS Slide MAX 1600 · 6.00×4.50 م · RAL 1013</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== شرفة محمد نجمة — حيفا (الأبعاد بالمتر) =====
+const PL=new THREE.MeshStandardMaterial({color:0xdccdb0,roughness:.95}),
+      BAND=new THREE.MeshStandardMaterial({color:0xc9ad95,roughness:.9});
+M.alu.color.set(0xe3d9c6);M.alu.metalness=.2;M.fab.color.set(0xeae2d0);
+const g=new THREE.Group();S.add(g);
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(12,10),new THREE.MeshStandardMaterial({map:(()=>{const t=TT.clone();t.needsUpdate=true;t.repeat.set(12/.8,10/.8);return t})(),roughness:.8}));
+fl.rotation.x=-Math.PI/2;fl.position.set(3,0,3);fl.receiveShadow=true;g.add(fl);
+box(10,6.2,.4,PL,3,3.1,-.2,g);
+box(10.3,.45,.7,BAND,3,3.18,.15,g);
+box(1.9,2.3,.05,M.glass,5.0,1.15,.01,g); box(2.1,.25,.12,PL,5.0,2.42,.05,g);
+box(.95,1.1,.05,M.glass,3.6,1.45,.01,g);
+box(.25,1.1,5.3,PL,-.3,.55,2.65,g);
+box(3.0,1.1,.25,PL,.9,.55,5.25,g);
+box(1.6,.25,.25,PL,3.2,.12,5.25,g); box(1.6,.85,.04,M.glass,3.2,.67,5.25,g);
+box(1.8,1.1,.25,PL,4.9,.55,5.25,g);
+box(.25,2.4,5.3,PL,6.45,1.2,2.65,g);
+const W=6,D=4.5,hb=2.9,hf=2.6,posts=[{x:.1,y:0},{x:5.9,y:0}];
+// SKYTEKS Slide MAX 1600
+(function(){
+ const u={g:new THREE.Group(),x0:0,W,D,hf,hb,sky:true};g.add(u.g);
+ const H=z=>hb+(hf-hb)*z/D;u.H=H;
+ beam(V(0,hb+.05,.06),V(W,hb+.05,.06),.14,.22,M.alu,u.g);
+ beam(V(0,hf,D),V(W,hf,D),.16,.25,M.alu,u.g);
+ [.08,W/2,W-.08].forEach(x=>beam(V(x,hb,.06),V(x,hf,D),.12,.24,M.alu,u.g));
+ posts.forEach(p=>box(.15,hf-p.y-.1,.15,M.alu,p.x,p.y+(hf-p.y-.1)/2,D,u.g));
+ for(let i=0;i<3;i++){const p=new THREE.PointLight(0xffd9a0,0,6,2);p.position.set(1+i*2,(hb+hf)/2-.4,D/2);u.g.add(p);lamps.push(p)}
+ u.fab=new THREE.Group();u.g.add(u.fab);units.push(u);
+})();
+const _sf=setFabric;
+setFabric=function(u,t){ if(!u.sky)return _sf(u,t); u.fab.clear();
+ const n=Math.ceil((u.D-.12)/.206),half=[[.14,u.W/2-.04],[u.W/2+.04,u.W-.14]];
+ for(let i=0;i<n;i++){let z=.1+.103+i*.206; z=z*(1-t)+(.2+i*.025)*t;
+  half.forEach(([a,b])=>{const m=box(b-a,.03,.2,M.alu,(a+b)/2,u.H(z)+.14+(t>0?i*.004*t:0),z,u.fab);m.rotation.x=Math.atan2(u.hb-u.hf,u.D)})}};
+SP.start({
+ views:{all:[[-4.5,5.2,10.5],[3,1.4,2.2]], side:[[-6.5,3.4,8.5],[3,1.5,2.2]], inside:[[1.4,1.5,4.1],[4.0,3.1,1.2]]},
+ projects:[{label:'SKYTEKS Slide MAX',view:'all'}]
+});
+</script>
+</body>
+</html>
