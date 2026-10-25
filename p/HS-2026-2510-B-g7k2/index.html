@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-2510-B/C</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>حيفا · شرفة 450 × 255 · نوافذ غيوتين 20 ملم · أسود</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== شرفة: فتحة 4.50 × 2.55 م بين الأرضية والسقف، السور الحديدي القائم في الخارج =====
+M.alu.color.set(0x111111);
+const WALL=new THREE.MeshStandardMaterial({color:0xece9e2,roughness:.85});
+const GL=new THREE.MeshStandardMaterial({color:0x9fc3d6,roughness:.05,metalness:.2,transparent:true,opacity:.28,side:THREE.DoubleSide});
+const OW=4.5,OH=2.55;
+const guil=[];
+function balcony(g){
+ const fl=new THREE.Mesh(new THREE.PlaneGeometry(7,5.2),new THREE.MeshStandardMaterial({color:0x6d6259,roughness:.8}));
+ fl.rotation.x=-Math.PI/2;fl.position.set(1.6,0,-2.4);fl.receiveShadow=true;g.add(fl);
+ box(7.2,.3,5.6,WALL,1.6,OH+.15,-2.4,g);                // ceiling slab
+ box(7.2,.35,5.6,WALL,1.6,-.175,-2.4,g);                // floor slab
+ box(.3,OH,5,WALL,-1.35,OH/2,-2.5,g);                     // side wall (left, beyond storage)
+ box(.35,OH,.6,WALL,-.175,OH/2,-.3,g);                  // left jamb
+ box(.6,OH,.6,WALL,OW+.3,OH/2,-.3,g);                   // right column
+ box(7.2,OH,.3,WALL,1.6,OH/2,-5.05,g);                  // back wall
+ box(1.3,2.1,.04,M.glass,2.6,1.05,-4.88,g);               // door to flat
+ // existing iron railing at slab edge
+ box(OW,.04,.05,M.dark,OW/2,1.08,.18,g);box(OW,.04,.05,M.dark,OW/2,.08,.18,g);
+ for(let x=.05;x<OW;x+=.12)box(.018,1.0,.018,M.dark,x,.58,.18,g);
+ // planters + sofa hints
+ box(3.8,.25,.3,new THREE.MeshStandardMaterial({color:0x2c2a28}),2.2,.125,-.35,g);
+ box(1.2,.45,.8,new THREE.MeshStandardMaterial({color:0x9c918a,roughness:.9}),.6,.22,-1.6,g);
+ box(1.0,.04,.6,new THREE.MeshStandardMaterial({color:0xd6ece9,roughness:.2}),1.8,.45,-1.7,g);
+ // street ground below
+ const st=new THREE.Mesh(new THREE.PlaneGeometry(40,30),new THREE.MeshStandardMaterial({color:0x55585c,roughness:.95}));
+ st.rotation.x=-Math.PI/2;st.position.set(2,-3.2,10);g.add(st);
+ box(7.2,3.0,.3,WALL,1.6,-1.7,.2,g);                    // facade below balcony
+}
+// guillotine unit: x0..x0+W, panels slide down; plane z=-.08
+function guillotine(g,x0,W){
+ const z=-.08,f=.06,ph=(OH-.12)/3;
+ box(W,f,.12,M.alu,x0+W/2,f/2,z,g);box(W,f,.12,M.alu,x0+W/2,OH-f/2,z,g);
+ box(f,OH,.12,M.alu,x0+f/2,OH/2,z,g);box(f,OH,.12,M.alu,x0+W-f/2,OH/2,z,g);
+ const u={panels:[],x0,W,ph};
+ for(let i=0;i<3;i++){const p=new THREE.Group();g.add(p);
+  box(W-.12,ph-.05,.02,GL,0,0,0,p);
+  box(W-.12,.045,.05,M.alu,0,(ph-.05)/2,0,p);box(W-.12,.045,.05,M.alu,0,-(ph-.05)/2,0,p);
+  p.position.set(x0+W/2,.06+ph/2+i*ph,z+(i-1)*.03);p.userData.base=.06+ph/2+i*ph;u.panels.push(p)}
+ guil.push(u);return u}
+function fixedSide(g,x0,W){const z=-.08,ph=(OH-.12)/3;
+ box(.05,OH,.12,M.alu,x0+.025,OH/2,z,g);box(.05,OH,.12,M.alu,x0+W-.025,OH/2,z,g);
+ for(let i=0;i<=3;i++)box(W,.05,.1,M.alu,x0+W/2,.06+i*ph,z,g);
+ for(let i=0;i<3;i++)box(W-.1,ph-.05,.02,GL,x0+W/2,.06+ph/2+i*ph,z,g)}
+// LED strip in ceiling for night view
+function ceilLight(g){const l=box(OW-.4,.02,.06,M.led,OW/2,OH-.01,-.6,g);leds.push(l);
+ const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(OW/2,OH-.3,-1.5);g.add(p);lamps.push(p)}
+
+const G1=new THREE.Group(),G2=new THREE.Group();S.add(G1,G2);G2.position.set(30,0,0);
+balcony(G1);fixedSide(G1,0,.35);guillotine(G1,.35,3.8);fixedSide(G1,4.15,.35);ceilLight(G1);
+balcony(G2);guillotine(G2,0,2.22);guillotine(G2,2.28,2.22);box(.08,OH,.12,M.alu,2.25,OH/2,-.08,G2);ceilLight(G2);
+// open = lower the upper two panels over the bottom one
+setOpen=function(t){guil.forEach(u=>{u.panels.forEach((p,i)=>{p.position.y=p.userData.base-t*i*u.ph})})};
+SP.start({
+ views:{all:[[2.25,1.45,-4.7],[2.25,1.25,1]], side:[[-0.9,1.6,-4.2],[3.2,1.2,0]], inside:[[3.9,1.7,-3.2],[1.4,1.2,.5]], out:[[2.3,2.0,6.5],[2.25,1.1,0]],
+        all2:[[32.25,1.45,-4.7],[32.25,1.25,1]], side2:[[29.1,1.6,-4.2],[33.2,1.2,0]], out2:[[32.3,2.0,6.5],[32.25,1.1,0]]},
+ projects:[{label:'الخيار 1 · غيوتين 380 + ثابت',view:'all'},{label:'الخيار 2 · غيوتين 2 × 225',view:'all2'}],
+ labels:{open:'فتح النوافذ',night:'ليلي'}
+});
+</script>
+</body>
+</html>
