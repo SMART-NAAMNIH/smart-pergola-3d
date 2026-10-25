@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-2510</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>مجد الكروم · SKYTEKS Roll / Sliding + غيوتين · RAL 7016</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// سطح الطابق الأول: واجهة الغرفة z=0، الحائط العالي x=0، بروز الباطون 1.90 م، البرجولا 6.30 × 5.20 م، زجاج غيوتين 3.20 م
+M.alu.color.set(0x383e42);
+const PL=new THREE.MeshStandardMaterial({color:0xc4c4bf,roughness:.95});
+const SL=new THREE.MeshStandardMaterial({color:0x8a8075,roughness:.95});
+const MB=new THREE.MeshStandardMaterial({color:0x4b4b49,roughness:.9});
+const GL=new THREE.MeshStandardMaterial({color:0xa8ccd8,roughness:.05,metalness:.2,transparent:true,opacity:.28,side:THREE.DoubleSide});
+const W=6.3,ZS=1.9,ZE=7.1,HG=3.2,hb=3.36,hf=3.24;
+const H=z=>hb+(hf-hb)*(z-ZS)/(ZE-ZS);
+const G1=new THREE.Group(),G2=new THREE.Group();S.add(G1,G2);G2.position.set(40,0,0);
+const roll=[],slide=[];
+function site(g){
+ const sand=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.MeshStandardMaterial({color:0xb8946a,roughness:1}));
+ sand.rotation.x=-Math.PI/2;sand.position.set(3,-3.4,4);sand.receiveShadow=true;g.add(sand);
+ box(W+.3,3.4,ZE+.3,PL,W/2,-1.7,(ZE+.3)/2-.3,g);                       // الطابق الأرضي
+ box(W+.3,.02,ZE+.3,MB,W/2,.01,(ZE+.3)/2-.3,g);                        // عزل السطح
+ box(W+.3,3.5,.3,PL,W/2,1.75,-.15,g); box(4.0,2.6,.04,M.dark,3.4,1.3,.01,g); // واجهة الغرفة والفتحة
+ box(.3,7.2,ZE+.6,PL,-.15,3.6,(ZE+.6)/2-.6,g);                          // الحائط العالي
+ box(W+.3,.38,ZS+.3,SL,W/2+.0,3.55,(ZS+.3)/2-.3,g);                    // بروز الباطون
+ box(W,3.1,.3,PL,W/2,5.3,-.6,g); box(W+.3,.3,1.0,SL,W/2,7.0,-.4,g);    // الطابق العلوي
+ box(W+.3,.45,.22,PL,W/2,.225,ZE+.11,g); box(W+.35,.05,.3,M.cap,W/2,.47,ZE+.11,g); // حفّة أمامية
+ box(.22,.45,ZE,PL,W+.11,.225,ZE/2,g); box(.3,.05,ZE,M.cap,W+.11,.47,ZE/2,g);       // حفّة جانبية
+}
+function gio(g,ax,az,bx,bz,n){ // n وحدات غيوتين على خط
+ for(let i=0;i<n;i++){const t0=i/n,t1=(i+1)/n,x0=ax+(bx-ax)*t0,z0=az+(bz-az)*t0,x1=ax+(bx-ax)*t1,z1=az+(bz-az)*t1;
+  const L=Math.hypot(x1-x0,z1-z0),cx=(x0+x1)/2,cz=(z0+z1)/2,rot=Math.atan2(z1-z0,x1-x0);
+  const u=new THREE.Group();u.position.set(cx,0,cz);u.rotation.y=-rot;g.add(u);
+  box(L,.08,.12,M.alu,0,.04,0,u); box(L,.1,.14,M.alu,0,HG-.05,0,u);
+  box(.07,HG,.12,M.alu,-L/2+.035,HG/2,0,u); box(.07,HG,.12,M.alu,L/2-.035,HG/2,0,u);
+  box(L-.14,.06,.07,M.alu,0,HG/2,0,u);
+  box(L-.14,HG-.2,.02,GL,0,HG/2,0,u);}
+}
+function frame(g){
+ beam(V(0,hb,ZS),V(W,hb,ZS),.14,.2,M.alu,g); beam(V(0,hf,ZE),V(W,hf,ZE),.16,.24,M.alu,g);
+ [0,W/2,W].forEach(x=>beam(V(x,hb,ZS),V(x,hf,ZE),.12,.22,M.alu,g));
+ [[W,ZE],[W/2,ZE]].forEach(([x,z])=>box(.14,hf-.12,.14,M.alu,x,(hf-.12)/2,z,g));
+ [W/4,3*W/4].forEach(x=>{const l=beam(V(x,H(ZS+.3)-.13,ZS+.3),V(x,H(ZE-.3)-.13,ZE-.3),.03,.012,M.led,g);leds.push(l);
+  const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(x,2.6,(ZS+ZE)/2);g.add(p);lamps.push(p)});
+ gio(g,W+.0,0,W+.0,ZE-.1,2); gio(g,W-.1,ZE,.15,ZE,2);
+}
+// الخيار 1: SKYTEKS Roll — شرائح ألمنيوم 20.6 سم تتراكم نحو الباطون
+(function(){const g=G1;site(g);frame(g);
+ const n=Math.ceil((ZE-ZS)/.206);
+ for(let m=0;m<2;m++)for(let i=0;i<n;i++){const s=box(W/2-.14,.03,.2,M.alu,m*W/2+W/4,0,0,g);roll.push({s,i,n})}
+})();
+// الخيار 2: SKYTEKS Sliding — ألواح منزلقة تتجمّع نحو الباطون
+(function(){const g=G2;site(g);frame(g);
+ const n=6,d=(ZE-ZS)/n;
+ for(let m=0;m<2;m++)for(let i=0;i<n;i++){const s=box(W/2-.14,.05,d+.04,M.alu,m*W/2+W/4,0,0,g);slide.push({s,i,n,d})}
+})();
+function setOpen(t){
+ roll.forEach(({s,i})=>{const z=ZS+.12+i*(.206*(1-t)+.04*t);s.position.z=z;s.position.y=H(z)+.02;s.rotation.x=t*1.2});
+ slide.forEach(({s,i,n,d})=>{const k=n-1-i,z=ZS+d/2+i*d*(1-t);s.position.z=z;s.position.y=H(ZS+d*i)+.03+k*.055*t});
+}
+SP.start({
+ views:{all:[[W+7.5,6.2,ZE+7],[W/2,1.4,ZE/2]], s_all:[[40+W+7.5,6.2,ZE+7],[40+W/2,1.4,ZE/2]], inside:[[.9,1.7,1.0],[W*.7,2.2,ZE*.8]], side:[[W+9,3.2,ZE/2+1],[W/2,1.6,ZE/2]]},
+ projects:[{label:'الخيار 1 · SKYTEKS Roll',view:'all'},{label:'الخيار 2 · SKYTEKS Sliding',view:'s_all'}]
+});
+</script>
+</body>
+</html>
