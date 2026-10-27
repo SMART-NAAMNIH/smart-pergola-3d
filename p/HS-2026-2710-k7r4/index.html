@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-2710</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>كفر ياسيف · مطعم · RTS 1400 + غيوتين 1500 · RAL 7016</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+M.alu.color.set(0x383e42); M.fab.color.set(0xd2d3d0);
+const grey=new THREE.MeshStandardMaterial({color:0x8a8d8c,roughness:.9}), ochre=new THREE.MeshStandardMaterial({color:0xc9a861,roughness:.9});
+const gl=new THREE.MeshStandardMaterial({color:0x9fc3d6,roughness:.05,metalness:.2,transparent:true,opacity:.32,side:THREE.DoubleSide});
+const ground=new THREE.MeshStandardMaterial({color:0x9c8e76,roughness:1});
+function floor(g,w,d,x,z){const t=TT.clone();t.needsUpdate=true;t.repeat.set(w/.8,d/.8);const f=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshStandardMaterial({map:t,roughness:.8}));f.rotation.x=-Math.PI/2;f.position.set(x,.01,z);f.receiveShadow=true;g.add(f)}
+// guillotine / fixed glass panel in plane: along x (axis='x') at z, or along z (axis='z') at x
+function pane(g,axis,a0,a1,c,y0,h){const L=a1-a0,m=(a0+a1)/2,fr=.06;
+ if(axis==='x'){box(L,h,.02,gl,m,y0+h/2,c,g);box(L,fr,.08,M.alu,m,y0+fr/2,c,g);box(L,fr,.08,M.alu,m,y0+h-fr/2,c,g);box(L,.04,.06,M.alu,m,y0+h/2,c,g);box(fr,h,.08,M.alu,a0+fr/2,y0+h/2,c,g);box(fr,h,.08,M.alu,a1-fr/2,y0+h/2,c,g)}
+ else{box(.02,h,L,gl,c,y0+h/2,m,g);box(.08,fr,L,M.alu,c,y0+fr/2,m,g);box(.08,fr,L,M.alu,c,y0+h-fr/2,m,g);box(.06,.04,L,M.alu,c,y0+h/2,m,g);box(.08,h,fr,M.alu,c,y0+h/2,a0+fr/2,g);box(.08,h,fr,M.alu,c,y0+h/2,a1-fr/2,g)}}
+function tri(g,x,z0,z1,yb,y0,y1){const s=new THREE.Shape();s.moveTo(0,0);s.lineTo(z1-z0,0);s.lineTo(z1-z0,y1-yb);s.lineTo(0,y0-yb);s.lineTo(0,0);
+ const m=new THREE.Mesh(new THREE.ShapeGeometry(s),gl);m.rotation.y=-Math.PI/2;m.position.set(x,yb,z0);g.add(m)}
+const G1=new THREE.Group(),G2=new THREE.Group();S.add(G1,G2);
+// ---------- Project 1: restaurant front yard — fixed roof 7.39x2.77 at the wall + RTS 2 x 4.77 x 8.00
+(function(){const g=G1;
+ const gr=new THREE.Mesh(new THREE.PlaneGeometry(40,30),ground);gr.rotation.x=-Math.PI/2;gr.position.set(5,0,8);gr.receiveShadow=true;g.add(gr);
+ floor(g,9.54,11.12,4.77,5.56);
+ box(16,7.2,.5,grey,4.77,3.6,-.25,g);                                   // building facade
+ [-1.6,9.9].forEach(x=>box(1.2,7.25,.56,ochre,x,3.6,-.2,g));            // ochre pillars
+ box(4.2,2.8,.05,M.dark,2.6,1.4,.01,g); box(2.0,2.4,.05,M.dark,7.6,1.2,.01,g); // existing openings
+ const F=3.12, hf=2.55, hb=hf+0.12*8+0.24;                              // slope rule: 12%/m + 24 cm
+ // fixed roof (pergola ثابتة) above the doors + 35 cm strip
+ box(7.39,.12,2.77,M.alu,7.39/2,hb+.12,1.385,g); box(.13,hb+.06,.13,M.alu,7.33,(hb+.06)/2,2.7,g);
+ box(6.79,.1,.35,M.alu,6.79/2,hb+.1,F-.175,g);
+ const G=new THREE.Group();G.position.z=F;g.add(G);
+ rts(G,0,4.77,8.0,hf,hb,[{x:.07,y:0},{x:4.77,y:0}]);
+ rts(G,4.77,4.77,8.0,hf,hb,[{x:9.47,y:0}]);
+ const zf=F+8.0, gh=2.4;
+ [[0,3.18],[3.18,6.36],[6.36,9.54]].forEach(([a,b])=>pane(g,'x',a,b,zf,.05,gh));          // front 3 x 318
+ [[F,F+4],[F+4,F+8]].forEach(([a,b])=>pane(g,'z',a,b,.03,.05,gh));                       // left 2 x 400
+ [[F,F+3.4],[F+3.4,F+6.8]].forEach(([a,b])=>pane(g,'z',a,b,9.51,.05,gh));                // right 2 x 340
+ box(.06,2.2,1.2,gl,9.51,1.1,F+7.4,g); box(.09,2.2,.06,M.alu,9.51,1.1,F+6.82,g); box(.09,.06,1.2,M.alu,9.51,2.22,F+7.4,g); // door 120/220
+ tri(g,.03,F,zf,gh+.05,hb,hf); tri(g,9.51,F,zf,gh+.05,hb,hf);           // fixed glass triangles both sides
+})();
+// ---------- Project 2: entrance pergola RTS 1300 7.50 x 4.00
+(function(){const g=G2;g.position.set(40,0,0);
+ const gr=new THREE.Mesh(new THREE.PlaneGeometry(20,14),ground);gr.rotation.x=-Math.PI/2;gr.position.set(3.75,0,4);gr.receiveShadow=true;g.add(gr);
+ floor(g,7.5,4,3.75,2);
+ box(11,6,.5,grey,3.75,3,-.25,g); box(1.2,6.05,.56,ochre,-1.5,3,-.2,g);
+ box(2.2,2.6,.05,M.dark,3.75,1.3,.01,g);
+ const hf=2.7,hb=hf+.12*4+.24;
+ rts(g,0,7.5,4.0,hf,hb,[{x:.07,y:0},{x:3.75,y:0},{x:7.43,y:0}]);
+})();
+SP.start({
+ views:{all:[[-6.5,8.5,20],[4.8,1.8,6]], side:[[16,5.5,15],[4.8,2,6]], inside:[[34.5,4.2,10.5],[43.75,2,1.5]], p2:[[34,5,11],[43.75,2,1.5]]},
+ projects:[{label:'المشروع 1 · ساحة المطعم',view:'all'},{label:'المشروع 2 · مدخل المطعم',view:'p2'}]
+});
+</script>
+</body>
+</html>
