@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-1611</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>عكا · 8 ستائر Zip Screen · RAL 9016 أبيض</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== جلسة مسقوفة بالخشب مع 8 ستائر Zip — الأبعاد بالمتر (توضيحي) =====
+M.alu.color.set(0xf2f2ef);
+const WH=new THREE.MeshStandardMaterial({color:0xf4f4f1,roughness:.6});
+const WOOD=new THREE.MeshStandardMaterial({color:0xc8925a,roughness:.75});
+const SCR=new THREE.MeshStandardMaterial({color:0x8a8780,roughness:.9,transparent:true,opacity:.78,side:THREE.DoubleSide});
+const G=new THREE.Group();S.add(G);
+const Wd=5.8,L=9.9,HC=2.8;
+// floor + ceiling
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(16,18),new THREE.MeshStandardMaterial({map:(()=>{const t=TT.clone();t.needsUpdate=true;t.repeat.set(16/.8,18/.8);return t})(),roughness:.8}));
+fl.rotation.x=-Math.PI/2;fl.position.set(Wd/2,0,L/2);fl.receiveShadow=true;G.add(fl);
+box(Wd+.3,.08,L+.3,WOOD,Wd/2,HC+.2,L/2,G);
+box(.14,.16,L+.2,WH,.0,HC+.08,L/2,G); box(Wd,.16,.14,WH,Wd/2,HC+.08,0,G); box(Wd,.16,.14,WH,Wd/2,HC+.08,L,G);
+// house wall (right) with windows
+box(.35,HC+.3,L,stoneMat(L,3),Wd+.17,(HC+.3)/2,L/2,G);
+[[2.2],[5.0],[7.8]].forEach(([z])=>{box(.05,1.7,1.9,M.glass,Wd-.02,1.45,z,G);box(.08,.08,2.0,WH,Wd-.03,.58,z,G)});
+// low walls under the high screens
+box(.25,1.4,2.5,stoneMat(2.5,1.4),-.05,.7,1.3,G);      // left near kitchen (item 8)
+box(5.6,1.4,.25,stoneMat(5.6,1.4),2.85,.7,-.05,G);     // back kitchen wall (items 5,6)
+// kitchen counter
+box(4.2,.9,.65,M.cap,3.2,.45,.45,G); box(4.2,.05,.7,new THREE.MeshStandardMaterial({color:0xf3efe8,roughness:.3}),3.2,.92,.45,G);
+// posts
+const post=(x,z)=>box(.12,HC,.12,WH,x,HC/2,z,G);
+[0,2.55,4.88,7.36,9.9].forEach(z=>post(0,z)); post(1.6,0); post(Wd-.05,0); post(3.2,L); post(4.5,L);
+// shelf unit (item 1 behind it) + front wall piece
+box(1.25,.04,.35,WOOD,3.85,.9,L-.25,G);box(1.25,.04,.35,WOOD,3.85,1.6,L-.25,G);
+box(1.25,HC,.3,stoneMat(1.3,2.8),5.15,HC/2,L,G);
+
+// ---------- Zip unit
+const zips=[];
+function zip(ax,a0,c,W,H,yb){ // ax:'x' => along x at z=c ; 'z' => along z at x=c
+ const g=new THREE.Group();G.add(g);const top=yb+H;
+ const P=(s,y)=>ax==='x'?[a0+s,y,c]:[c,y,a0+s];
+ const B=(len,h,s,y,mat)=>{const d=ax==='x'?[len,h,.12]:[.12,h,len];return box(d[0],d[1],d[2],mat,...P(s,y),g)};
+ B(W,.12,W/2,top-.06,M.alu);                        // cassette
+ B(.05,H-.12,.025,yb+(H-.12)/2,M.alu); B(.05,H-.12,W-.025,yb+(H-.12)/2,M.alu); // side rails
+ const z={g,fab:null,bar:null,set(t){if(this.fab)g.remove(this.fab,this.bar);const h=Math.max(.02,(H-.16)*(1-t));
+  const d=ax==='x'?[W-.1,h,.01]:[.01,h,W-.1];this.fab=box(d[0],d[1],d[2],SCR,...P(W/2,top-.12-h/2),g);this.fab.castShadow=false;
+  const e=ax==='x'?[W-.1,.04,.05]:[.05,.04,W-.1];this.bar=box(e[0],e[1],e[2],M.alu,...P(W/2,top-.12-h),g)}};
+ zips.push(z);return z}
+zip('z',.08,0,2.40,1.40,1.40);   // 8 : 240x140 above wall
+zip('z',2.61,0,2.23,2.80,0);     // 7 : 223x280
+zip('z',4.94,0,2.38,2.80,0);     // 3 : 238x280
+zip('z',7.42,0,2.38,2.80,0);     // 4 : 238x280
+zip('x',.06,0,1.40,1.40,1.40);   // 6 : 140x140 above wall
+zip('x',1.66,0,4.00,1.40,1.40);  // 5 : 400x140 above kitchen wall
+zip('x',.06,L,3.0,2.80,0);       // 2 : 300x280
+zip('x',3.26,L,1.20,2.50,.30);   // 1 : 120x250
+setOpen=function(t){zips.forEach(z=>z.set(t))};
+// pendant lights
+[[2.9,2.5],[2.9,5],[2.9,7.5],[1.2,6]].forEach(([x,z])=>{const s=new THREE.Mesh(new THREE.SphereGeometry(.12,16,12),M.led);s.position.set(x,2.3,z);G.add(s);
+ const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(x,2.2,z);G.add(p);lamps.push(p)});
+SP.start({
+ views:{all:[[-6.5,4.2,13.5],[2.6,1.3,4.8]], side:[[-7.5,2.6,4.2],[1.5,1.4,4.8]], inside:[[4.6,1.7,8.6],[1.2,1.2,1.8]]},
+ projects:[{label:'منظر عام',view:'all'},{label:'من الحديقة',view:'side'},{label:'من الداخل',view:'inside'}],
+ labels:{open:'رفع الستائر'}
+});
+</script>
+</body>
+</html>
