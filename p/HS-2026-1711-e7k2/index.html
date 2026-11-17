@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · הדמיה תלת־ממדית · HS-2026-1711</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>אפרת · סגירת פרגולה קיימת בזכוכית הזזה Sürme Plus · בגוון השלד הקיים</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+M.alu.color.set(0xe8e3d6); M.fab.color.set(0xdcd6c8);
+const GL=new THREE.MeshStandardMaterial({color:0xcfe6f2,roughness:.05,metalness:.1,transparent:true,opacity:.28,side:THREE.DoubleSide});
+const FR=new THREE.MeshStandardMaterial({color:0xe8e3d6,roughness:.5,metalness:.3});
+const W=6.13,D=3.70,hf=2.50,hb=3.00,par=0.45;
+const g=new THREE.Group();S.add(g);
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(16,14),new THREE.MeshStandardMaterial({map:(()=>{const t=TT.clone();t.needsUpdate=true;t.repeat.set(16/.8,14/.8);return t})(),roughness:.8}));
+fl.rotation.x=-Math.PI/2;fl.position.set(3,0,3);fl.receiveShadow=true;g.add(fl);
+const grass=new THREE.Mesh(new THREE.PlaneGeometry(16,6),new THREE.MeshStandardMaterial({color:0x3f7a3a,roughness:1}));
+grass.rotation.x=-Math.PI/2;grass.position.set(3,.01,7.2);g.add(grass);
+box(11,6.5,.4,stoneMat(11,6.5),3,3.25,-.2,g);
+box(1.8,2.3,.05,M.glass,3.6,1.15,.01,g);
+box(.9,1.0,.05,M.glass,5.4,1.6,.01,g);
+box(.25,par,D,stoneMat(D,par),-.13,par/2,D/2,g); box(.33,.05,D+.05,M.cap,-.13,par+.02,D/2,g);
+rts(g,0,W,D,hf,hb,[{x:.07,y:0},{x:W/2,y:0},{x:W-.07,y:0}]);
+const sys=[];
+function slider(n,len,h,base,place,stackTo){
+ const s={p:[]};for(let i=0;i<n;i++){const m=new THREE.Group();
+  const pw=len/n+.03;
+  m.add(new THREE.Mesh(new THREE.BoxGeometry(pw,h-.06,.012),GL));
+  [[0,h/2-.03,pw,.05],[0,-h/2+.03,pw,.05],[-pw/2+.02,0,.04,h],[pw/2-.02,0,.04,h]].forEach(([x,y,w,hh])=>{const f=new THREE.Mesh(new THREE.BoxGeometry(w,hh,.03),FR);f.position.set(x,y,0);m.add(f)});
+  g.add(m);s.p.push({m,i,n,len,h,base,place,stackTo,pw})}
+ sys.push(s);return s}
+function rail(a,b,y,g2){beam(V(a[0],y,a[1]),V(b[0],y,b[1]),.1,.05,FR,g2)}
+const fw=(W-.11)/2;
+slider(4,fw,hf-.06,0,(s,o)=>[.0+s+o,D+.0],0);
+slider(4,fw,hf-.06,0,(s,o)=>[W/2+.055+s+o,D],1);
+slider(4,D-.1,hf-.06,0,(s,o)=>[W,.05+s+o],0);
+slider(4,D-.1,hf-par-.06,par,(s,o)=>[0,.05+s+o],0);
+rail([0.06,D],[W-.06,D],.025,g);rail([0.06,D],[W-.06,D],hf-.05,g);
+rail([W,.05],[W,D],.025,g);rail([W,.05],[W,D],hf-.05,g);
+rail([0,.05],[0,D],par+.025,g);rail([0,.05],[0,D],hf-.05,g);
+function tri(x){const sh=new THREE.Shape();sh.moveTo(0,hf);sh.lineTo(D,hf);sh.lineTo(0,hb);sh.lineTo(0,hf);
+ const m=new THREE.Mesh(new THREE.ShapeGeometry(sh),GL);m.rotation.y=-Math.PI/2;m.position.set(x,0,0);g.add(m);
+ beam(V(x,hf,0),V(x,hb,0),.05,.05,FR,g);beam(V(x,hb,0),V(x,hf,D),.05,.05,FR,g)}
+tri(0);tri(W);
+let openT=0;
+function layout(t){sys.forEach((s,si)=>s.p.forEach(q=>{
+ const step=q.len/q.n, closed=q.i*step+step/2, stack=(q.stackTo? q.len-step/2 : step/2);
+ const s2=closed+(stack-closed)*t; const off=(q.i%2)*.035;
+ const [x,z]=q.place(s2,0); const y=q.base+q.h/2+.03;
+ if(si<2){q.m.position.set(x,y,z+off);q.m.rotation.y=0}else{q.m.position.set(x+(si==2?-off:off),y,z);q.m.rotation.y=Math.PI/2}}))}
+const _setOpen=setOpen; setOpen=function(t){_setOpen(t);openT=t;layout(t)};
+layout(0);
+SP.start({
+ views:{all:[[-3.2,3.4,10.5],[3,1.6,2]],side:[[10.5,3.2,6.5],[3,1.6,1.8]],inside:[[1.2,1.7,1.0],[4.5,1.5,3.7]]},
+ projects:[{label:'הפרגולה הסגורה',view:'all'},{label:'מבט מהצד',view:'side'}],
+ labels:{open:'פתיחת הגג והזכוכית',night:'לילה'}
+});
+</script>
+</body>
+</html>
