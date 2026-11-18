@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-1811</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>المغار · ستائر Zip شفافة · وحدتان 400 و500 سم · RAL 8019</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== المشهد: سطح خشبي بجانب البركة، برجولا خشبية قائمة، وستارتا Zip شفافتان بين أعمدتها =====
+M.alu.color.set(0x4a4038);                                   // RAL 8019 بني رمادي
+const wood=new THREE.MeshStandardMaterial({color:0x9a6a3c,roughness:.75});
+const deck=new THREE.MeshStandardMaterial({color:0xb08560,roughness:.85});
+const water=new THREE.MeshStandardMaterial({color:0x48b8c8,roughness:.08,metalness:.2,transparent:true,opacity:.85});
+const clear=new THREE.MeshStandardMaterial({color:0xdfeef2,roughness:.05,metalness:0,transparent:true,opacity:.28,side:THREE.DoubleSide});
+const G=new THREE.Group();S.add(G);
+(function(){
+ const g=G;
+ box(16,.1,12,deck,4.6,-.05,2.5,g);                                   // deck floor
+ box(7,.06,6,water,4,.01,8.6,g); box(7.2,.04,.25,M.cap,4,.03,5.55,g);  // pool
+ box(14,4.2,.3,stoneMat(14,4.2),4.6,2.1,-3.6,g);                      // house wall
+ box(3.2,2.5,.05,M.glass,1.6,1.25,-3.43,g); box(3.3,.1,.08,M.dark,1.6,2.52,-3.42,g); // sliding glass door
+ // existing wooden pergola: posts on the pool side at x=0, 4.2, 9.4 (z=5), back posts at z=-3.2
+ const H=2.45,PZ=5;
+ [0,4.2,9.4].forEach(x=>{box(.22,H,.22,wood,x,H/2,PZ,g);box(.2,H,.2,wood,x,H/2,-3.2,g)});
+ box(9.8,.3,.22,wood,4.7,H+.15,PZ,g);                                 // front beam
+ box(9.8,.3,.2,wood,4.7,H+.15,-3.2,g);
+ for(let i=0;i<9;i++){box(.08,.22,8.6,wood,i*1.17+.05,H+.41,.9,g)}    // rafters
+ box(2.6,.45,.5,wood,6.8,.45,4.2,g);                                  // wooden bench
+ box(.6,1,.6,wood,5.6,.5,1.5,g);                                      // barrel
+ box(1.8,.4,.8,M.cap,2.6,.2,0,g);                                     // lounge
+})();
+// ---- Zip units (inside the wooden frame, under the beam)
+const zips=[];
+function zip(g,x0,W,Hc,z){
+ const u={x0,W,Hc,z};
+ box(W,.11,.13,M.alu,x0+W/2,Hc-.055,z,g);                             // cassette
+ box(.05,Hc-.11,.06,M.alu,x0+.025,(Hc-.11)/2,z,g); box(.05,Hc-.11,.06,M.alu,x0+W-.025,(Hc-.11)/2,z,g); // side rails
+ u.fab=box(W-.1,1,.01,clear,x0+W/2,.5,z,g); u.bar=box(W-.1,.05,.05,M.alu,x0+W/2,0,z,g);
+ zips.push(u);return u}
+zip(G,.11,4.0,2.2,5);      // الوحدة 1: 400×220
+zip(G,4.31,5.0,2.2,5);     // الوحدة 2: 500×220
+setOpen=function(t){zips.forEach(u=>{const top=u.Hc-.11,h=Math.max(.02,top*(1-t));
+ u.fab.scale.y=h;u.fab.position.y=top-h/2;u.bar.position.y=top-h})};
+SP.start({
+ views:{all:[[4.7,3.2,13.5],[4.7,1.3,4]], side:[[13.5,2.6,9.5],[4.7,1.2,4]], inside:[[3,1.7,-1.8],[5,1.2,5]]},
+ projects:[{label:'الواجهة نحو البركة',view:'all'},{label:'من الداخل',view:'inside'}],
+ labels:{open:'رفع الستائر',night:'ليلي'}
+});
+</script>
+</body>
+</html>

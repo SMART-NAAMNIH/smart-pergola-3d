@@ -10,3 +10,4 @@
 | HS-2026-2909-B / C | سطح — SKYTEKS | `p/HS-2026-2909-B-3f83/` | https://smart-naamnih.github.io/smart-pergola-3d/p/HS-2026-2909-B-3f83/ |
 | HS-2026-2909-D | عكا | `p/HS-2026-2909-D-1f75/` | https://smart-naamnih.github.io/smart-pergola-3d/p/HS-2026-2909-D-1f75/ |
 | HS-2026-2909-E | جديدة | `p/HS-2026-2909-E-56ab/` | https://smart-naamnih.github.io/smart-pergola-3d/p/HS-2026-2909-E-56ab/ |
+| HS-2026-1811 | المغار — Zip شفاف | `p/HS-2026-1811-k7z2/` | https://smart-naamnih.github.io/smart-pergola-3d/p/HS-2026-1811-k7z2/ |
