@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · تصميم ثلاثي الأبعاد · HS-2026-2111-B</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>يافة الناصرة · SKYTEKS Pearl 750×400 · زجاج منزلق من ثلاث جهات · RAL 9005 / 1013</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== د. طارق أبو الحلق — يافة الناصرة — SKYTEKS Pearl قائمة بذاتها 7.5×4.0 م، 6 أعمدة، زجاج منزلق أمام وجانبين =====
+const G=new THREE.Group();S.add(G);
+const W=7.5,D=4.0,HT=2.75,PH=2.5;          // width, depth, top of frame, glass height
+M.alu.color.set(0x151515);
+const slatMat=new THREE.MeshStandardMaterial({color:0xe3d3a4,roughness:.55,metalness:.25,side:THREE.DoubleSide});
+const glassMat=new THREE.MeshStandardMaterial({color:0xbfd8e2,roughness:.05,metalness:.1,transparent:true,opacity:.28,side:THREE.DoubleSide});
+// floor + surroundings
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(22,16),new THREE.MeshStandardMaterial({map:(()=>{const t=TT.clone();t.needsUpdate=true;t.repeat.set(22/.8,16/.8);return t})(),roughness:.8}));
+fl.rotation.x=-Math.PI/2;fl.position.set(W/2,0,2.5);fl.receiveShadow=true;G.add(fl);
+box(14,6.5,.4,stoneMat(14,6.5),W/2,3.25,-1.0,G);                 // house wall behind
+box(1.8,2.3,.05,M.glass,2.2,1.15,-.79,G); box(1.6,1.2,.05,M.glass,5.6,1.6,-.79,G);
+box(.45,.6,6,stoneMat(6,.6),-1.4,.3,2.2,G); box(.55,.06,6.1,M.cap,-1.4,.62,2.2,G);   // planter ledge (left)
+box(4,.45,.6,stoneMat(4,.45),W+2.5,.22,5.6,G);                    // step / bench
+// frame: 6 posts (3 front, 3 back), perimeter beams, middle beam
+const px=[0,W/2,W];
+px.forEach(x=>{[0,D].forEach(z=>box(.135,HT,.135,M.alu,x,HT/2,z,G))});
+box(W+.135,.2,.14,M.alu,W/2,HT-.1,0,G); box(W+.135,.2,.14,M.alu,W/2,HT-.1,D,G);
+px.forEach(x=>box(.14,.2,D,M.alu,x,HT-.1,D/2,G));
+// LED strips under side beams
+const ledG=[];px.forEach(x=>{const l=box(.03,.012,D-.4,M.led,x,HT-.205,D/2,G)});
+for(let i=0;i<2;i++){const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(W/4+i*W/2,HT-.6,D/2);G.add(p);lamps.push(p)}
+// louvers (SKYTEKS Roll R173, 17.3 cm) — two units, slats parallel to width, stack toward house when opening
+const sky=[];
+for(let k=0;k<2;k++){const x0=k*W/2+.08,w=W/2-.16,g=new THREE.Group();G.add(g);
+ const n=Math.floor((D-.1)/.173),slats=[];
+ for(let i=0;i<n;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(w,.018,.17),slatMat);m.castShadow=m.receiveShadow=true;g.add(m);slats.push(m)}
+ sky.push({x0,w,n,slats})}
+function setSky(t){sky.forEach(u=>u.slats.forEach((m,i)=>{
+ const z0=.12+i*.173+.085, zS=.12+i*.035;               // closed position / stacked position near house
+ m.position.set(u.x0+u.w/2,HT-.09,z0+(zS-z0)*t);
+ m.rotation.x=-t*Math.PI*0.5*0.95;}))}
+setOpen=function(t){setSky(t)};
+// sliding glass: front (two openings) + two sides, 4 panels each, on rails
+function slide(ax,a0,a1,fixed,side){const L=a1-a0,n=4,pw=L/n+.04;
+ for(let i=0;i<n;i++){const c=a0+L*(i+.5)/n,off=(i%2)*.035;
+  if(side){box(.012,PH-.1,pw,glassMat,fixed+off-.02,PH/2,c,G);box(.03,.04,pw,M.alu,fixed+off-.02,PH-.08,c,G)}
+  else{box(pw,PH-.1,.012,glassMat,c,PH/2,fixed+off-.02,G);box(pw,.04,.03,M.alu,c,PH-.08,fixed+off-.02,G)}}
+ if(side){box(.09,.04,L,M.alu,fixed,.02,(a0+a1)/2,G);box(.09,.05,L,M.alu,fixed,PH,(a0+a1)/2,G)}
+ else{box(L,.04,.09,M.alu,(a0+a1)/2,.02,fixed,G);box(L,.05,.09,M.alu,(a0+a1)/2,PH,fixed,G)}}
+slide('x',.07,W/2-.07,D,false); slide('x',W/2+.07,W-.07,D,false);
+slide('z',.07,D-.07,0,true); slide('z',.07,D-.07,W,true);
+// house side: open now (gypsum boards later) — light outline only
+// furniture hint
+box(2.2,.42,.9,new THREE.MeshStandardMaterial({color:0x8a7b66,roughness:.9}),W/2,.21,1.4,G);
+box(1.2,.4,.7,new THREE.MeshStandardMaterial({color:0x5a4b3a,roughness:.7}),W/2,.2,2.6,G);
+SP.start({
+ views:{all:[[-4.5,4.2,11.5],[W/2,1.4,2]], side:[[W+6.5,3.4,8.5],[W/2,1.5,2]], inside:[[W/2-1.5,1.6,.9],[W/2+1.2,1.6,D+4]]},
+ projects:[{label:'البرجولا والزجاج',view:'all'},{label:'من الجانب',view:'side'},{label:'من الداخل',view:'inside'}]
+});
+</script>
+</body>
+</html>
