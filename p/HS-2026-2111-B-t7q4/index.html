@@ -9,60 +9,95 @@
 </head>
 <body>
 <canvas id="c"></canvas>
-<div class="bar"><div><b>SMART</b> Pergola<small>يافة الناصرة · SKYTEKS Pearl 750×400 · زجاج منزلق من ثلاث جهات · RAL 9005 / 1013</small></div></div>
+<div class="bar"><div><b>SMART</b> Pergola<small>يافة الناصرة · SKYTEKS Pearl 750×400 · زجاج منزلق من ثلاث جهات · جلسة منخفضة مع موقد نار</small></div></div>
 <div class="panel" id="panel"></div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
 <script src="../../viewer/engine.js"></script>
 <script>
-// ===== د. طارق أبو الحلق — يافة الناصرة — SKYTEKS Pearl قائمة بذاتها 7.5×4.0 م، 6 أعمدة، زجاج منزلق أمام وجانبين =====
+// ===== د. طارق أبو الحلق — يافة الناصرة — حسب صور الموقع =====
+// المحور x: عرض البرجولا 0..7.5 (يسار→يمين في الصورة)، z: 0 = الجدار الخلفي، 4 = الواجهة الأمامية
 const G=new THREE.Group();S.add(G);
-const W=7.5,D=4.0,HT=2.75,PH=2.5;          // width, depth, top of frame, glass height
+const W=7.5,D=4.0,HT=2.75,PH=2.5,PD=.5;   // PD = عمق الجلسة المنخفضة
 M.alu.color.set(0x151515);
+const mat=(c,r=.8,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+function texLines(base,line,rows,cols){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');
+ g.fillStyle=base;g.fillRect(0,0,512,512);g.strokeStyle=line;g.lineWidth=3;
+ for(let i=1;i<rows;i++){g.beginPath();g.moveTo(0,i*512/rows);g.lineTo(512,i*512/rows);g.stroke()}
+ for(let j=1;j<cols;j++){g.beginPath();g.moveTo(j*512/cols,0);g.lineTo(j*512/cols,512);g.stroke()}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
+const tileT=texLines('#cdb894','#a38f6c',4,4), cladT=texLines('#d8c7a3','#a89472',6,1);
+function tiled(w,h,s){const t=tileT.clone();t.needsUpdate=true;t.repeat.set(w/s,h/s);return new THREE.MeshStandardMaterial({map:t,roughness:.55})}
+function clad(w,h){const t=cladT.clone();t.needsUpdate=true;t.repeat.set(w/3,h/1.8);return new THREE.MeshStandardMaterial({map:t,roughness:.75})}
 const slatMat=new THREE.MeshStandardMaterial({color:0xe3d3a4,roughness:.55,metalness:.25,side:THREE.DoubleSide});
-const glassMat=new THREE.MeshStandardMaterial({color:0xbfd8e2,roughness:.05,metalness:.1,transparent:true,opacity:.28,side:THREE.DoubleSide});
-// floor + surroundings
-const fl=new THREE.Mesh(new THREE.PlaneGeometry(22,16),new THREE.MeshStandardMaterial({map:(()=>{const t=TT.clone();t.needsUpdate=true;t.repeat.set(22/.8,16/.8);return t})(),roughness:.8}));
-fl.rotation.x=-Math.PI/2;fl.position.set(W/2,0,2.5);fl.receiveShadow=true;G.add(fl);
-box(14,6.5,.4,stoneMat(14,6.5),W/2,3.25,-1.0,G);                 // house wall behind
-box(1.8,2.3,.05,M.glass,2.2,1.15,-.79,G); box(1.6,1.2,.05,M.glass,5.6,1.6,-.79,G);
-box(.45,.6,6,stoneMat(6,.6),-1.4,.3,2.2,G); box(.55,.06,6.1,M.cap,-1.4,.62,2.2,G);   // planter ledge (left)
-box(4,.45,.6,stoneMat(4,.45),W+2.5,.22,5.6,G);                    // step / bench
-// frame: 6 posts (3 front, 3 back), perimeter beams, middle beam
-const px=[0,W/2,W];
-px.forEach(x=>{[0,D].forEach(z=>box(.135,HT,.135,M.alu,x,HT/2,z,G))});
-box(W+.135,.2,.14,M.alu,W/2,HT-.1,0,G); box(W+.135,.2,.14,M.alu,W/2,HT-.1,D,G);
-px.forEach(x=>box(.14,.2,D,M.alu,x,HT-.1,D/2,G));
-// LED strips under side beams
-const ledG=[];px.forEach(x=>{const l=box(.03,.012,D-.4,M.led,x,HT-.205,D/2,G)});
-for(let i=0;i<2;i++){const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(W/4+i*W/2,HT-.6,D/2);G.add(p);lamps.push(p)}
-// louvers (SKYTEKS Roll R173, 17.3 cm) — two units, slats parallel to width, stack toward house when opening
+const glassMat=new THREE.MeshStandardMaterial({color:0xcfe3ea,roughness:.05,metalness:.1,transparent:true,opacity:.22,side:THREE.DoubleSide});
+
+// ---- الأرضية العليا مع فتحة الجلسة المنخفضة
+const X0=.6,X1=6.7,Z0=.25,Z1=3.1;           // حدود الجلسة المنخفضة
+const ft=.06;
+[[ -6,X0, -1,9 ],[X1,14,-1,9],[X0,X1,-1,Z0],[X0,X1,Z1,9]].forEach(([a,b,c,d])=>{
+ box(b-a,ft,d-c,tiled(b-a,d-c,1.2),(a+b)/2,-ft/2,(c+d)/2,G)});
+box(X1-X0,ft,Z1-Z0,tiled(X1-X0,Z1-Z0,.9),(X0+X1)/2,-PD-ft/2,(Z0+Z1)/2,G);              // أرضية الجلسة
+box(X1-X0,PD,.03,tiled(X1-X0,PD,.9),(X0+X1)/2,-PD/2,Z1-.015,G);                        // الواجهة الداخلية للدرج
+[[X0,1],[X1,-1]].forEach(([x,s])=>box(.03,PD,Z1-Z0,tiled(Z1-Z0,PD,.9),x+s*.015,-PD/2,(Z0+Z1)/2,G));box(X1-X0,PD,.03,tiled(X1-X0,PD,.9),(X0+X1)/2,-PD/2,Z0+.015,G);
+// ---- مقاعد البلاط حول أطراف الجلسة (يسار، خلف، يمين) + درجة أمامية
+const bH=.42,bD=.5,bench=tiled(1,1,.6),cushion=mat(0x6f6a62,.95),pillow=mat(0x2f5d62,.95);
+function seat(w,d,x,z){box(w,bH,d,bench,x,-PD+bH/2,z,G);box(w-.06,.08,d-.08,cushion,x,-PD+bH+.04,z,G)}
+seat(X1-X0,bD,(X0+X1)/2,Z0+bD/2);                                     // مقعد خلفي
+seat(bD,Z1-Z0-bD-.6,X0+bD/2,Z0+bD+(Z1-Z0-bD-.6)/2);                    // مقعد يسار
+seat(bD,Z1-Z0-bD-.6,X1-bD/2,Z0+bD+(Z1-Z0-bD-.6)/2);                    // مقعد يمين
+for(let i=0;i<5;i++)box(.4,.3,.1,pillow,X0+.9+i*1.1,-PD+bH+.23,Z0+.12,G);   // وسائد على المقعد الخلفي
+box(2.2,PD/2,.4,tiled(2.2,.4,.6),(X0+X1)/2,-PD/4-ft,Z1-.2,G);           // درجة النزول
+// ---- موقد النار في المنتصف
+const fx=(X0+X1)/2,fz=(Z0+Z1)/2+.15;
+box(1.1,.32,1.1,mat(0x3a3530,.6,.1),fx,-PD+.16,fz,G);
+box(.8,.02,.8,mat(0x111111,.3,.4),fx,-PD+.33,fz,G);
+const flameM=new THREE.MeshStandardMaterial({color:0xff8a1c,emissive:0xff6a00,emissiveIntensity:1.6,transparent:true,opacity:.9});
+[[0,0,.38],[.12,.08,.28],[-.13,-.05,.3],[.05,-.14,.24],[-.06,.13,.22]].forEach(([dx,dz,h])=>{
+ const f=new THREE.Mesh(new THREE.ConeGeometry(.07,h,10),flameM);f.position.set(fx+dx,-PD+.34+h/2,fz+dz);G.add(f)});
+const fireL=new THREE.PointLight(0xff8a30,.6,5,2);fireL.position.set(fx,-PD+.8,fz);G.add(fireL);
+// ---- الجدار الخلفي (تكسية أفقية) مع حوض نباتات وأضواء جدار
+box(W+3,4.2,.35,clad(W+3,4.2),W/2-.5,2.1-PD,-.4,G);
+box(W+3,.55,.6,clad(W+3,.55),W/2-.5,.28-PD+.05,-.05,G);              // حوض النباتات عند قاعدة الجدار
+const leaf=mat(0x2f5a2c,.9);
+[[.6,1.3],[1.6,1.6],[2.6,1.1],[3.7,1.5],[4.8,1.2],[5.9,1.4]].forEach(([x,h])=>{const c=new THREE.Mesh(new THREE.ConeGeometry(.28,h,8),leaf);c.position.set(x,.3-PD+h/2,-.05);c.castShadow=true;G.add(c)});
+[1.2,4.2,6.6].forEach(x=>{box(.12,.12,.08,mat(0xe8e8e8,.3),x,2.3,-.2,G);const l=new THREE.PointLight(0xbfd9ff,0,3.5,2);l.position.set(x,2.1,.1);G.add(l);lamps.push(l)});
+// ---- يمين: جدار البيت الحجري + المنصة المرتفعة السوداء
+box(.5,5,8,stoneMat(8,5),W+1.9,2.5-PD,2.2,G);
+box(1.5,.75,4.2,mat(0x1c1c1c,.25,.3),W+.95,.375,1.9,G);
+box(1.45,.02,4.1,mat(0x55606a,.1,.6),W+.95,.76,1.9,G);
+// ---- يسار: جدار الساحة البعيد
+box(.4,2.6,9,clad(9,2.6),-3.2,1.3-PD,3,G);
+// ---- هيكل البرجولا: 6 أعمدة، قائم بذاته، ملاصق للجدار الخلفي
+const px=[0,W/2,W],z0=.12;
+px.forEach(x=>{[z0,D].forEach(z=>box(.135,HT,.135,M.alu,x,HT/2,z,G))});
+box(W+.135,.2,.14,M.alu,W/2,HT-.1,z0,G); box(W+.135,.2,.14,M.alu,W/2,HT-.1,D,G);
+px.forEach(x=>box(.14,.2,D-z0,M.alu,x,HT-.1,(D+z0)/2,G));
+px.forEach(x=>box(.03,.012,D-.5,M.led,x,HT-.205,(D+z0)/2,G));
+for(let i=0;i<2;i++){const p=new THREE.PointLight(0xffd9a0,0,8,2);p.position.set(W/4+i*W/2,HT-.5,D/2);G.add(p);lamps.push(p)}
+// ---- شرائح SKYTEKS Roll R173 (17.3 سم) — وحدتان، تتراكم نحو الجدار عند الفتح
 const sky=[];
-for(let k=0;k<2;k++){const x0=k*W/2+.08,w=W/2-.16,g=new THREE.Group();G.add(g);
- const n=Math.floor((D-.1)/.173),slats=[];
- for(let i=0;i<n;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(w,.018,.17),slatMat);m.castShadow=m.receiveShadow=true;g.add(m);slats.push(m)}
- sky.push({x0,w,n,slats})}
+for(let k=0;k<2;k++){const x0=k*W/2+.08,w=W/2-.16;
+ const n=Math.floor((D-z0-.1)/.173),slats=[];
+ for(let i=0;i<n;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(w,.018,.17),slatMat);m.castShadow=m.receiveShadow=true;G.add(m);slats.push(m)}
+ sky.push({x0,w,slats})}
 function setSky(t){sky.forEach(u=>u.slats.forEach((m,i)=>{
- const z0=.12+i*.173+.085, zS=.12+i*.035;               // closed position / stacked position near house
- m.position.set(u.x0+u.w/2,HT-.09,z0+(zS-z0)*t);
- m.rotation.x=-t*Math.PI*0.5*0.95;}))}
+ const zc=z0+.1+i*.173+.085, zs=z0+.1+i*.035;
+ m.position.set(u.x0+u.w/2,HT-.09,zc+(zs-zc)*t);m.rotation.x=-t*Math.PI*.47}))}
 setOpen=function(t){setSky(t)};
-// sliding glass: front (two openings) + two sides, 4 panels each, on rails
-function slide(ax,a0,a1,fixed,side){const L=a1-a0,n=4,pw=L/n+.04;
+const _night=setNight;setNight=function(n){_night(n);fireL.intensity=n?2.2:.6};
+// ---- زجاج منزلق: الأمام (فتحتان) والجانبان، 4 ألواح لكل فتحة
+function slide(a0,a1,fixed,side){const L=a1-a0,n=4,pw=L/n+.04;
  for(let i=0;i<n;i++){const c=a0+L*(i+.5)/n,off=(i%2)*.035;
-  if(side){box(.012,PH-.1,pw,glassMat,fixed+off-.02,PH/2,c,G);box(.03,.04,pw,M.alu,fixed+off-.02,PH-.08,c,G)}
-  else{box(pw,PH-.1,.012,glassMat,c,PH/2,fixed+off-.02,G);box(pw,.04,.03,M.alu,c,PH-.08,fixed+off-.02,G)}}
+  if(side){box(.012,PH-.1,pw,glassMat,fixed+off-.02,PH/2,c,G);box(.03,.04,pw,M.alu,fixed+off-.02,PH-.08,c,G);box(.03,.04,pw,M.alu,fixed+off-.02,.08,c,G)}
+  else{box(pw,PH-.1,.012,glassMat,c,PH/2,fixed+off-.02,G);box(pw,.04,.03,M.alu,c,PH-.08,fixed+off-.02,G);box(pw,.04,.03,M.alu,c,.08,fixed+off-.02,G)}}
  if(side){box(.09,.04,L,M.alu,fixed,.02,(a0+a1)/2,G);box(.09,.05,L,M.alu,fixed,PH,(a0+a1)/2,G)}
  else{box(L,.04,.09,M.alu,(a0+a1)/2,.02,fixed,G);box(L,.05,.09,M.alu,(a0+a1)/2,PH,fixed,G)}}
-slide('x',.07,W/2-.07,D,false); slide('x',W/2+.07,W-.07,D,false);
-slide('z',.07,D-.07,0,true); slide('z',.07,D-.07,W,true);
-// house side: open now (gypsum boards later) — light outline only
-// furniture hint
-box(2.2,.42,.9,new THREE.MeshStandardMaterial({color:0x8a7b66,roughness:.9}),W/2,.21,1.4,G);
-box(1.2,.4,.7,new THREE.MeshStandardMaterial({color:0x5a4b3a,roughness:.7}),W/2,.2,2.6,G);
+slide(.07,W/2-.07,D,false); slide(W/2+.07,W-.07,D,false);
+slide(z0+.07,D-.07,0,true); slide(z0+.07,D-.07,W,true);
 SP.start({
- views:{all:[[-4.5,4.2,11.5],[W/2,1.4,2]], side:[[W+6.5,3.4,8.5],[W/2,1.5,2]], inside:[[W/2-1.5,1.6,.9],[W/2+1.2,1.6,D+4]]},
- projects:[{label:'البرجولا والزجاج',view:'all'},{label:'من الجانب',view:'side'},{label:'من الداخل',view:'inside'}]
+ views:{all:[[-3.2,4.6,10.5],[W/2+.6,.6,1.6]], side:[[W-1.2,3.3,9.5],[W/2-.6,.4,1.4]], inside:[[1.1,1.2,3.6],[W-1.5,.2,.6]]},
+ projects:[{label:'منظر عام',view:'all'},{label:'من الأمام',view:'side'},{label:'داخل الجلسة',view:'inside'}]
 });
 </script>
 </body>
