@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Smart Pergola · הדמיה תלת־ממדית · HS-2026-2111</title>
+<link rel="stylesheet" href="../../viewer/viewer.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar"><div><b>SMART</b> Pergola<small>רונין קוצינה · מעיליא · 7×5 מ' · SKYTEKS Pearl / RTS 1300 · RAL 9005</small></div></div>
+<div class="panel" id="panel"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../../viewer/engine.js"></script>
+<script>
+// ===== Restaurant front (wood-clad wall, glass storefront, deck) — metres =====
+function woodTex(){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');
+ g.fillStyle='#a8784a';g.fillRect(0,0,512,512);
+ for(let r=0;r<16;r++){const off=(r%2)*90;for(let k=-1;k<4;k++){const t=Math.random()*30-15|0;
+  g.fillStyle=`rgb(${168+t},${118+t},${72+t})`;g.fillRect(k*180+off+2,r*32+2,176,28);
+  for(let i=0;i<6;i++){g.fillStyle=`rgba(80,50,20,${Math.random()*.15})`;g.fillRect(k*180+off+2,r*32+4+Math.random()*24,176,1)}}}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.encoding=THREE.sRGBEncoding;return t}
+function deckTex(){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');
+ for(let i=0;i<8;i++){const t=Math.random()*20-10|0;g.fillStyle=`rgb(${120+t},${72+t},${42+t})`;g.fillRect(i*32,0,30,256)}
+ g.fillStyle='#3a2414';for(let i=0;i<8;i++)g.fillRect(i*32+30,0,2,256);
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.encoding=THREE.sRGBEncoding;return t}
+const TW=woodTex(),TD=deckTex();
+function woodMat(w,h){const t=TW.clone();t.needsUpdate=true;t.repeat.set(w/4,h/2);return new THREE.MeshStandardMaterial({map:t,roughness:.8})}
+function deck(g,w,d,x,z){const t=TD.clone();t.needsUpdate=true;t.repeat.set(w/1.3,d/1.3);
+ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshStandardMaterial({map:t,roughness:.85}));
+ m.rotation.x=-Math.PI/2;m.position.set(x,.02,z);m.receiveShadow=true;g.add(m)}
+const MP=new THREE.MeshStandardMaterial({color:0xcfcac2,roughness:.9}),MG=new THREE.MeshStandardMaterial({color:0x5f8f3a,roughness:.9});
+function scene(g){
+ const gr=new THREE.Mesh(new THREE.PlaneGeometry(30,20),new THREE.MeshStandardMaterial({color:0xb79a7a,roughness:1}));
+ gr.rotation.x=-Math.PI/2;gr.position.set(5,0,4);gr.receiveShadow=true;g.add(gr);
+ deck(g,8.4,6,3.5,3);
+ box(16,4.6,.4,woodMat(16,4.6),5,2.3,-.2,g);                         // restaurant facade
+ [[1.1,1.5],[3.2,1.0],[5.4,1.6]].forEach(([x,w])=>{box(w,2.5,.05,M.glass,x,1.3,.01,g);box(w+.1,.08,.07,M.dark,x,2.56,.02,g)});
+ box(3.6,2.7,.05,M.glass,9.6,1.4,.01,g);box(3.8,.5,.3,M.dark,9.6,3.2,.15,g);   // main entrance + canopy
+ [[1.2,5.6],[6.0,5.6]].forEach(([x,z])=>{box(1.8,.45,.45,MP,x,.23,z,g);box(1.6,.3,.35,MG,x,.55,z,g)}); // planters
+ [[2.2,2.2],[4.8,2.2],[2.2,3.9],[4.8,3.9]].forEach(([x,z])=>{box(.8,.04,.8,MP,x,.75,z,g);box(.06,.73,.06,M.dark,x,.38,z,g)}); // tables
+}
+// ===== SKYTEKS Pearl (1400 Roll R173) : rotating louvres, pitch 17.3 cm =====
+const sky=[];const ML=new THREE.MeshStandardMaterial({color:0x2c2c2c,roughness:.5,metalness:.4});
+function skyUnit(g,x0,W,D,h,posts){
+ const u={g:new THREE.Group(),x0,W,D,h,l:[]};g.add(u.g);
+ beam(V(x0,h,.08),V(x0+W,h,.08),.16,.2,M.alu,u.g); beam(V(x0,h,D),V(x0+W,h,D),.16,.2,M.alu,u.g);
+ beam(V(x0+.08,h,0),V(x0+.08,h,D),.16,.2,M.alu,u.g); beam(V(x0+W-.08,h,0),V(x0+W-.08,h,D),.16,.2,M.alu,u.g);
+ const n=Math.floor((D-.2)/.173);
+ for(let i=0;i<n;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(W-.18,.025,.158),ML);m.castShadow=m.receiveShadow=true;
+  m.userData.z=.17+i*.173;m.userData.i=i;u.g.add(m);u.l.push(m)}
+ [[.16,.16],[W-.16,.16],[.16,D-.08],[W-.16,D-.08]].forEach(([x,z])=>{const l=beam(V(x0+.2,h-.11,z),V(x0+W-.2,h-.11,z),.02,.01,M.led,u.g);leds.push(l)});
+ const p=new THREE.PointLight(0xffd9a0,0,7,2);p.position.set(x0+W/2,h-.5,D/2);u.g.add(p);lamps.push(p);
+ posts.forEach(x=>box(.135,h-.1,.135,M.alu,x,(h-.1)/2,D,u.g));
+ sky.push(u);return u}
+function skySet(u,t){u.l.forEach(m=>{const z=m.userData.z*(1-t)+(.2+m.userData.i*.035)*t;
+ m.position.set(u.x0+u.W/2,u.h+.03,z);m.rotation.x=t*Math.PI*.62})}
+setOpen=function(t){units.forEach(u=>setFabric(u,t));sky.forEach(u=>skySet(u,t))};
+// ---- Option A
+const GA=new THREE.Group(),GB=new THREE.Group();S.add(GA,GB);
+scene(GA);
+skyUnit(GA,0,3.5,5,3.0,[0.07]);
+skyUnit(GA,3.5,3.5,5,3.0,[3.5,6.93]);
+// ---- Option B : RTS 1300, one unit 7×5, fabric roof
+GB.position.set(40,0,0);scene(GB);
+rts(GB,0,7,5,2.85,3.35,[{x:.07,y:0},{x:3.5,y:0},{x:6.93,y:0}]);
+SP.start({
+ views:{aAll:[[-3.5,4.2,13],[3.5,1.6,2.4]], aSide:[[11,6.2,9.5],[3.2,2.4,2.2]], aIn:[[3.5,1.6,4.2],[3.5,3.2,.6]], bAll:[[36.5,4.2,13],[43.5,1.6,2.4]]},
+ projects:[{label:'חלופה א׳ · SKYTEKS Pearl',view:'aAll'},{label:'חלופה ב׳ · RTS 1300',view:'bAll'}],
+ labels:{open:'פתיחת הגג',night:'לילה'}
+});
+</script>
+</body>
+</html>
